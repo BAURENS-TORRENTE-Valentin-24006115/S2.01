@@ -1,0 +1,112 @@
+/* Styles pour Super Bomberman */
+
+.root {
+    -fx-background-color: #2c3e50;
+}
+
+.header {
+    -fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50);
+    -fx-padding: 10px;
+    -fx-border-color: #1a252f;
+    -fx-border-width: 0 0 2px 0;
+}
+
+.title {
+    -fx-font-family: "Arial Black", Arial, sans-serif;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ecf0f1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.8), 2, 0.5, 2, 2);
+}
+
+.info-bar {
+    -fx-background-color: #34495e;
+    -fx-padding: 8px;
+    -fx-border-color: #1a252f;
+    -fx-border-width: 0 0 1px 0;
+}
+
+.info-bar .label {
+    -fx-text-fill: #bdc3c7;
+    -fx-font-size: 12px;
+    -fx-font-family: "Arial", sans-serif;
+}
+
+.game-container {
+    -fx-background-color: #27ae60;
+    -fx-padding: 20px;
+    -fx-background-image: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%2320a04e' fill-opacity='0.1'%3E%3Cpath d='m0 40h40v-40h-40z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.game-grid {
+    -fx-background-color: #2c3e50;
+    -fx-border-color: #1a252f;
+    -fx-border-width: 3px;
+    -fx-border-radius: 5px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.6), 10, 0.3, 0, 0);
+}
+
+/* Styles pour les différents éléments du jeu */
+.cell-empty {
+    -fx-fill: #27ae60;
+    -fx-stroke: #229954;
+    -fx-stroke-width: 1;
+}
+
+.cell-wall {
+    -fx-fill: linear-gradient(to bottom, #566573, #34495e);
+    -fx-stroke: #1b2631;
+    -fx-stroke-width: 2;
+}
+
+.cell-destructible {
+    -fx-fill: linear-gradient(to bottom, #a0522d, #8b4513);
+    -fx-stroke: #654321;
+    -fx-stroke-width: 2;
+}
+
+.cell-player {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, #3498db, #2980b9);
+    -fx-stroke: #1f4e79;
+    -fx-stroke-width: 3;
+}
+
+.cell-bomb {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, #2c2c2c, #000000);
+    -fx-stroke: #8b0000;
+    -fx-stroke-width: 2;
+}
+
+.cell-bomb-blinking {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, #ff4444, #cc0000);
+    -fx-stroke: #660000;
+    -fx-stroke-width: 3;
+}
+
+.cell-explosion {
+    -fx-fill: radial-gradient(center 50% 50%, radius 50%, #ff9500, #ff6b00);
+    -fx-stroke: #cc3300;
+    -fx-stroke-width: 2;
+}
+
+/* Animation de pulsation pour les bombes */
+@keyframes bomb-pulse {
+    0% { -fx-scale-x: 1; -fx-scale-y: 1; }
+    50% { -fx-scale-x: 1.1; -fx-scale-y: 1.1; }
+    100% { -fx-scale-x: 1; -fx-scale-y: 1; }
+}
+
+.bomb-pulsing {
+    -fx-animation: bomb-pulse 0.5s infinite;
+}
+
+/* Effets d'ombre et de relief */
+.cell-3d-effect {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.4), 2, 0.3, 1, 1);
+}
+
+/* Style pour les particules d'explosion (si implémentées) */
+.explosion-particle {
+    -fx-fill: #ff6b00;
+    -fx-opacity: 0.8;
+}
