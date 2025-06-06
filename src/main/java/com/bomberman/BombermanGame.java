@@ -33,7 +33,10 @@ public class BombermanGame implements Initializable {
     private Image destructibleBlockImage;
     private Image bombImage;
     private Image explosionImage;
-    private Image[] playerImages = new Image[4];
+    private Image spritesheetImage;
+
+    // Système de sprites
+    private SpriteManager spriteManager;
 
     private Player[] players = new Player[4];
     private boolean[][] walls;
@@ -56,16 +59,14 @@ public class BombermanGame implements Initializable {
     private void loadImages() {
         try {
             // Charger les images des éléments du jeu
-            wallImage = new Image(getClass().getResourceAsStream("/images/wall.png"));
-            destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.png"));
+            wallImage = new Image(getClass().getResourceAsStream("/images/wall.jpg"));
+            destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.jpg"));
             bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
             explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
 
-            // Charger les images des joueurs
-            playerImages[0] = new Image(getClass().getResourceAsStream("/images/player1.png"));
-            playerImages[1] = new Image(getClass().getResourceAsStream("/images/player2.png"));
-            playerImages[2] = new Image(getClass().getResourceAsStream("/images/player3.png"));
-            playerImages[3] = new Image(getClass().getResourceAsStream("/images/player4.png"));
+            // Charger la spritesheet des joueurs
+            spritesheetImage = new Image(getClass().getResourceAsStream("/images/players_spritesheet.png"));
+            spriteManager = new SpriteManager(spritesheetImage);
 
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des images: " + e.getMessage());
@@ -81,10 +82,8 @@ public class BombermanGame implements Initializable {
         bombImage = createColoredImage(28, 28, 0xFF2C3E50);
         explosionImage = createColoredImage(32, 32, 0xFFF1C40F);
 
-        playerImages[0] = createColoredImage(30, 30, 0xFF3498DB); // Bleu
-        playerImages[1] = createColoredImage(30, 30, 0xFFE74C3C); // Rouge
-        playerImages[2] = createColoredImage(30, 30, 0xFF27AE60); // Vert
-        playerImages[3] = createColoredImage(30, 30, 0xFF9B59B6); // Violet
+        // Créer un SpriteManager avec une spritesheet nulle (utilisera les placeholders)
+        spriteManager = new SpriteManager(null);
     }
 
     private Image createColoredImage(int width, int height, int color) {
@@ -104,6 +103,13 @@ public class BombermanGame implements Initializable {
         walls = new boolean[GRID_SIZE][GRID_SIZE];
         destructibleBlocks = new boolean[GRID_SIZE][GRID_SIZE];
         gameEnded = false;
+
+        // Nettoyer les anciens animateurs
+        for (Player player : players) {
+            if (player != null && player.animator != null) {
+                player.animator.dispose();
+            }
+        }
 
         // Initialiser les joueurs
         players[0] = new Player(1, 1, 0, "Joueur 1 (ZQSD + A)");
@@ -141,13 +147,19 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        // Créer les joueurs visuellement
+        // Créer les joueurs visuellement avec les sprites animés
         for (int i = 0; i < players.length; i++) {
             Player player = players[i];
-            player.visual = new ImageView(playerImages[player.playerIndex]);
+
+            // Créer l'ImageView pour le joueur
+            player.visual = new ImageView();
             player.visual.setFitWidth(CELL_SIZE - 4);
             player.visual.setFitHeight(CELL_SIZE - 4);
             player.visual.setPreserveRatio(true);
+
+            // Créer l'animateur pour ce joueur
+            player.animator = new PlayerAnimator(player.visual, spriteManager, player.playerIndex);
+            player.animator.idle(); // Commencer en idle
 
             StackPane playerCell = (StackPane) getNodeFromGridPane(player.x, player.y);
             playerCell.getChildren().add(player.visual);
@@ -182,39 +194,127 @@ public class BombermanGame implements Initializable {
 
         // Joueur 1 (ZQSD + A)
         if (players[0].alive && currentTime - lastMoveTime.get(players[0]) > MOVEMENT_DELAY) {
-            if (pressedKeys.contains(KeyCode.Z)) { movePlayer(players[0], 0, -1); lastMoveTime.put(players[0], currentTime); }
-            else if (pressedKeys.contains(KeyCode.S)) { movePlayer(players[0], 0, 1); lastMoveTime.put(players[0], currentTime); }
-            else if (pressedKeys.contains(KeyCode.Q)) { movePlayer(players[0], -1, 0); lastMoveTime.put(players[0], currentTime); }
-            else if (pressedKeys.contains(KeyCode.D)) { movePlayer(players[0], 1, 0); lastMoveTime.put(players[0], currentTime); }
+            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+            boolean moved = false;
+
+            if (pressedKeys.contains(KeyCode.Z)) {
+                direction = SpriteManager.Direction.UP;
+                moved = movePlayer(players[0], 0, -1);
+            }
+            else if (pressedKeys.contains(KeyCode.S)) {
+                direction = SpriteManager.Direction.DOWN;
+                moved = movePlayer(players[0], 0, 1);
+            }
+            else if (pressedKeys.contains(KeyCode.Q)) {
+                direction = SpriteManager.Direction.LEFT;
+                moved = movePlayer(players[0], -1, 0);
+            }
+            else if (pressedKeys.contains(KeyCode.D)) {
+                direction = SpriteManager.Direction.RIGHT;
+                moved = movePlayer(players[0], 1, 0);
+            }
+
+            if (moved) {
+                lastMoveTime.put(players[0], currentTime);
+                players[0].animator.startDirectionAnimation(direction);
+            } else if (direction == SpriteManager.Direction.IDLE) {
+                players[0].animator.idle();
+            }
         }
 
         // Joueur 2 (Flèches + Espace)
         if (players[1].alive && currentTime - lastMoveTime.get(players[1]) > MOVEMENT_DELAY) {
-            if (pressedKeys.contains(KeyCode.UP)) { movePlayer(players[1], 0, -1); lastMoveTime.put(players[1], currentTime); }
-            else if (pressedKeys.contains(KeyCode.DOWN)) { movePlayer(players[1], 0, 1); lastMoveTime.put(players[1], currentTime); }
-            else if (pressedKeys.contains(KeyCode.LEFT)) { movePlayer(players[1], -1, 0); lastMoveTime.put(players[1], currentTime); }
-            else if (pressedKeys.contains(KeyCode.RIGHT)) { movePlayer(players[1], 1, 0); lastMoveTime.put(players[1], currentTime); }
+            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+            boolean moved = false;
+
+            if (pressedKeys.contains(KeyCode.UP)) {
+                direction = SpriteManager.Direction.UP;
+                moved = movePlayer(players[1], 0, -1);
+            }
+            else if (pressedKeys.contains(KeyCode.DOWN)) {
+                direction = SpriteManager.Direction.DOWN;
+                moved = movePlayer(players[1], 0, 1);
+            }
+            else if (pressedKeys.contains(KeyCode.LEFT)) {
+                direction = SpriteManager.Direction.LEFT;
+                moved = movePlayer(players[1], -1, 0);
+            }
+            else if (pressedKeys.contains(KeyCode.RIGHT)) {
+                direction = SpriteManager.Direction.RIGHT;
+                moved = movePlayer(players[1], 1, 0);
+            }
+
+            if (moved) {
+                lastMoveTime.put(players[1], currentTime);
+                players[1].animator.startDirectionAnimation(direction);
+            } else if (direction == SpriteManager.Direction.IDLE) {
+                players[1].animator.idle();
+            }
         }
 
         // Joueur 3 (YGHJ + U)
         if (players[2].alive && currentTime - lastMoveTime.get(players[2]) > MOVEMENT_DELAY) {
-            if (pressedKeys.contains(KeyCode.Y)) { movePlayer(players[2], 0, -1); lastMoveTime.put(players[2], currentTime); }
-            else if (pressedKeys.contains(KeyCode.H)) { movePlayer(players[2], 0, 1); lastMoveTime.put(players[2], currentTime); }
-            else if (pressedKeys.contains(KeyCode.G)) { movePlayer(players[2], -1, 0); lastMoveTime.put(players[2], currentTime); }
-            else if (pressedKeys.contains(KeyCode.J)) { movePlayer(players[2], 1, 0); lastMoveTime.put(players[2], currentTime); }
+            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+            boolean moved = false;
+
+            if (pressedKeys.contains(KeyCode.Y)) {
+                direction = SpriteManager.Direction.UP;
+                moved = movePlayer(players[2], 0, -1);
+            }
+            else if (pressedKeys.contains(KeyCode.H)) {
+                direction = SpriteManager.Direction.DOWN;
+                moved = movePlayer(players[2], 0, 1);
+            }
+            else if (pressedKeys.contains(KeyCode.G)) {
+                direction = SpriteManager.Direction.LEFT;
+                moved = movePlayer(players[2], -1, 0);
+            }
+            else if (pressedKeys.contains(KeyCode.J)) {
+                direction = SpriteManager.Direction.RIGHT;
+                moved = movePlayer(players[2], 1, 0);
+            }
+
+            if (moved) {
+                lastMoveTime.put(players[2], currentTime);
+                players[2].animator.startDirectionAnimation(direction);
+            } else if (direction == SpriteManager.Direction.IDLE) {
+                players[2].animator.idle();
+            }
         }
 
         // Joueur 4 (OKLM + I)
         if (players[3].alive && currentTime - lastMoveTime.get(players[3]) > MOVEMENT_DELAY) {
-            if (pressedKeys.contains(KeyCode.O)) { movePlayer(players[3], 0, -1); lastMoveTime.put(players[3], currentTime); }
-            else if (pressedKeys.contains(KeyCode.L)) { movePlayer(players[3], 0, 1); lastMoveTime.put(players[3], currentTime); }
-            else if (pressedKeys.contains(KeyCode.K)) { movePlayer(players[3], -1, 0); lastMoveTime.put(players[3], currentTime); }
-            else if (pressedKeys.contains(KeyCode.M)) { movePlayer(players[3], 1, 0); lastMoveTime.put(players[3], currentTime); }
+            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+            boolean moved = false;
+
+            if (pressedKeys.contains(KeyCode.O)) {
+                direction = SpriteManager.Direction.UP;
+                moved = movePlayer(players[3], 0, -1);
+            }
+            else if (pressedKeys.contains(KeyCode.L)) {
+                direction = SpriteManager.Direction.DOWN;
+                moved = movePlayer(players[3], 0, 1);
+            }
+            else if (pressedKeys.contains(KeyCode.K)) {
+                direction = SpriteManager.Direction.LEFT;
+                moved = movePlayer(players[3], -1, 0);
+            }
+            else if (pressedKeys.contains(KeyCode.M)) {
+                direction = SpriteManager.Direction.RIGHT;
+                moved = movePlayer(players[3], 1, 0);
+            }
+
+            if (moved) {
+                lastMoveTime.put(players[3], currentTime);
+                players[3].animator.startDirectionAnimation(direction);
+            } else if (direction == SpriteManager.Direction.IDLE) {
+                players[3].animator.idle();
+            }
         }
     }
 
-    private void movePlayer(Player player, int dx, int dy) {
-        if (!player.alive) return;
+    private boolean movePlayer(Player player, int dx, int dy) {
+        if (!player.alive) return false;
 
         int newX = player.x + dx;
         int newY = player.y + dy;
@@ -229,7 +329,10 @@ public class BombermanGame implements Initializable {
             player.y = newY;
             StackPane newCell = (StackPane) getNodeFromGridPane(player.x, player.y);
             newCell.getChildren().add(player.visual);
+
+            return true;
         }
+        return false;
     }
 
     private boolean canMoveTo(int x, int y) {
@@ -362,15 +465,8 @@ public class BombermanGame implements Initializable {
 
         player.alive = false;
 
-        // Faire disparaître le joueur
-        FadeTransition death = new FadeTransition(Duration.millis(500), player.visual);
-        death.setFromValue(1.0);
-        death.setToValue(0.0);
-        death.setOnFinished(e -> {
-            StackPane cell = (StackPane) getNodeFromGridPane(player.x, player.y);
-            cell.getChildren().remove(player.visual);
-        });
-        death.play();
+        // Jouer l'animation de mort
+        player.animator.playDeathAnimation();
 
         updateUI();
     }
@@ -388,6 +484,9 @@ public class BombermanGame implements Initializable {
             if (winner != null) {
                 winnerLabel.setText(winner.name + " GAGNE!");
                 winnerLabel.getStyleClass().add("winner-text");
+
+                // Animation de célébration pour le gagnant
+                winner.animator.celebrate();
 
                 // Animation de victoire
                 ScaleTransition victory = new ScaleTransition(Duration.millis(1000), winnerLabel);
@@ -464,6 +563,7 @@ public class BombermanGame implements Initializable {
     }
 
     private static class Player {
+        public PlayerAnimator animator;
         int x, y;
         boolean alive = true;
         ImageView visual;
