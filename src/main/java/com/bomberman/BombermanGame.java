@@ -45,6 +45,9 @@ public class BombermanGame implements Initializable {
     private Set<KeyCode> pressedKeys = new HashSet<>();
     private Map<Player, Long> lastMoveTime = new HashMap<>();
 
+    private List<PowerUp> powerUps = new ArrayList<>();
+    private Image[] powerUpImages = new Image[PowerUp.Type.values().length];
+
     private Timeline gameLoop;
     private boolean gameEnded = false;
 
@@ -72,6 +75,16 @@ public class BombermanGame implements Initializable {
             System.err.println("Erreur lors du chargement des images: " + e.getMessage());
             // Créer des images de remplacement si les fichiers ne sont pas trouvés
             createPlaceholderImages();
+        }
+        // Charger les images des power-ups
+        try {
+            powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_bomb.png"));
+            powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_fire.png"));
+            powerUpImages[PowerUp.Type.KICK_BOMB.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_kick.png"));
+            powerUpImages[PowerUp.Type.INVINCIBLE.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_invincible.png"));
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des images de power-ups: " + e.getMessage());
+            createPlaceholderPowerUpImages();
         }
     }
 
