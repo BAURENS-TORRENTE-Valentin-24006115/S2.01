@@ -351,9 +351,63 @@ public class BombermanGame implements Initializable {
             StackPane newCell = (StackPane) getNodeFromGridPane(player.x, player.y);
             newCell.getChildren().add(player.visual);
 
+            // Vérifier si un power-up est disponible à cette position
+            checkForPowerUp(player, newX, newY);
+
             return true;
         }
         return false;
+    }
+
+    private void checkForPowerUp(Player player, int x, int y) {
+        Iterator<PowerUp> iterator = powerUps.iterator();
+        while (iterator.hasNext()) {
+            PowerUp powerUp = iterator.next();
+            if (powerUp.getX() == x && powerUp.getY() == y && powerUp.isActive()) {
+                // Collecter le power-up
+                StackPane cell = (StackPane) getNodeFromGridPane(x, y);
+                cell.getChildren().remove(powerUp.getVisual());
+
+                // Appliquer l'effet
+                player.applyPowerUp(powerUp.getType());
+
+                // Afficher un effet visuel temporaire
+                showPowerUpEffect(player, powerUp.getType());
+
+                // Retirer de la liste
+                powerUp.collect();
+                iterator.remove();
+                break;
+            }
+        }
+    }
+
+    private void showPowerUpEffect(Player player, PowerUp.Type type) {
+        // Créer un texte flottant montrant le type de power-up collecté
+        Label effectLabel = new Label();
+
+        switch (type) {
+            case BOMB_UP: effectLabel.setText("+1 BOMB"); break;
+            case FIRE_UP: effectLabel.setText("+1 BLAST POWER"); break;
+            case KICK_BOMB: effectLabel.setText("BOMB KICKER"); break;
+            case INVINCIBLE: effectLabel.setText("INVINCIBILITY"); break;
+        }
+
+        effectLabel.getStyleClass().add("power-up-text");
+        StackPane cell = (StackPane) getNodeFromGridPane(player.x, player.y);
+        cell.getChildren().add(effectLabel);
+
+        // Animation de texte flottant puis disparaissant
+        TranslateTransition floatUp = new TranslateTransition(Duration.millis(1000), effectLabel);
+        floatUp.setByY(-40);
+        FadeTransition fadeOut = new FadeTransition(Duration.millis(800), effectLabel);
+        fadeOut.setFromValue(1.0);
+        fadeOut.setToValue(0.0);
+        fadeOut.setDelay(Duration.millis(200));
+
+        ParallelTransition parallel = new ParallelTransition(floatUp, fadeOut);
+        parallel.setOnFinished(e -> cell.getChildren().remove(effectLabel));
+        parallel.play();
     }
 
     private boolean canMoveTo(int x, int y) {
@@ -368,6 +422,26 @@ public class BombermanGame implements Initializable {
         return true;
     }
 
+    private boolean tryPushBomb(Bomb bomb, int dx, int dy) {
+        int newX = bomb.x + dx;
+        int newY = bomb.y + dy;
+
+        // Vérifier si la position est libre
+        if (!canMoveTo(newX, newY)) return false;
+
+        // Déplacer la bombe
+        StackPane oldCell = (StackPane) getNodeFromGridPane(bomb.x, bomb.y);
+        oldCell.getChildren().remove(bomb.visual);
+
+        bomb.x = newX;
+        bomb.y = newY;
+
+        StackPane newCell = (StackPane) getNodeFromGridPane(newX, newY);
+        newCell.getChildren().add(bomb.visual);
+
+        return true;
+    }
+
     private void placeBomb(Player player) {
         if (!player.alive) return;
 
@@ -378,7 +452,12 @@ public class BombermanGame implements Initializable {
 
         // Limite de bombes par joueur
         long playerBombs = bombs.stream().filter(b -> b.owner == player).count();
-        if (playerBombs >= 2) return;
+        if (playerBombs >= player.bombLimit) return;
+
+        // Vérifier s'il n'y a pas déjà une bombe à cette position
+        for (Bomb bomb : bombs) {
+            if (bomb.x == player.x && bomb.y == player.y) return;
+        }
 
         Bomb newBomb = new Bomb(player.x, player.y, player);
         bombs.add(newBomb);
@@ -408,22 +487,24 @@ public class BombermanGame implements Initializable {
     }
 
     private void explodeBomb(Bomb bomb) {
-        if (!bombs.contains(bomb)) return;
-
+        // Retirer la bombe de la liste
         bombs.remove(bomb);
 
-        // Retirer la bombe visuelle
+        // Retirer la bombe visuellement
         StackPane bombCell = (StackPane) getNodeFromGridPane(bomb.x, bomb.y);
         bombCell.getChildren().remove(bomb.visual);
 
-        // Créer l'explosion
+        // Liste des cellules touchées par l'explosion
         List<int[]> explosionCells = new ArrayList<>();
         explosionCells.add(new int[]{bomb.x, bomb.y});
+
+        // Utiliser le rayon d'explosion du propriétaire de la bombe
+        int radius = bomb.owner.explosionRadius;
 
         // Explosion dans les 4 directions
         int[][] directions = {{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
         for (int[] dir : directions) {
-            for (int i = 1; i <= 2; i++) {
+            for (int i = 1; i <= radius; i++) {
                 int x = bomb.x + dir[0] * i;
                 int y = bomb.y + dir[1] * i;
 
@@ -431,6 +512,19 @@ public class BombermanGame implements Initializable {
 
                 explosionCells.add(new int[]{x, y});
 
+                // Vérifier si une autre bombe est touchée
+                for (int j = 0; j < bombs.size(); j++) {
+                    Bomb otherBomb = bombs.get(j);
+                    if (otherBomb.x == x && otherBomb.y == y) {
+                        // Explosion en chaîne retardée de 200ms
+                        Timeline chainReaction = new Timeline(new KeyFrame(Duration.millis(200),
+                                e -> explodeBomb(otherBomb)));
+                        chainReaction.play();
+                        break;
+                    }
+                }
+
+                // Détruire les blocs destructibles
                 if (destructibleBlocks[x][y]) {
                     destroyBlock(x, y);
                     break;
@@ -438,13 +532,13 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        // Afficher l'explosion
+        // Afficher les explosions
         showExplosion(explosionCells);
 
         // Vérifier si des joueurs sont touchés
         for (int[] cell : explosionCells) {
             for (Player player : players) {
-                if (player.alive && cell[0] == player.x && cell[1] == player.y) {
+                if (player.x == cell[0] && player.y == cell[1]) {
                     killPlayer(player);
                 }
             }
@@ -459,7 +553,29 @@ public class BombermanGame implements Initializable {
             // Trouver et retirer le bloc destructible
             cell.getChildren().removeIf(node -> node instanceof ImageView &&
                     ((ImageView) node).getImage() == destructibleBlockImage);
+
+            // 40% de chance de générer un power-up
+            if (Math.random() < 0.4) {
+                createPowerUp(x, y, cell);
+            }
         }
+    }
+
+    private void createPowerUp(int x, int y, StackPane cell) {
+        // Choisir un type de power-up aléatoire
+        PowerUp.Type type = PowerUp.Type.values()[(int)(Math.random() * PowerUp.Type.values().length)];
+        PowerUp powerUp = new PowerUp(x, y, type);
+
+        // Créer la représentation visuelle
+        ImageView powerUpView = new ImageView(powerUpImages[type.ordinal()]);
+        powerUpView.setFitWidth(30);
+        powerUpView.setFitHeight(30);
+        powerUpView.setPreserveRatio(true);
+
+        // Ajouter à la cellule et à la liste
+        powerUp.setVisual(powerUpView);
+        cell.getChildren().add(powerUpView);
+        powerUps.add(powerUp);
     }
 
     private void showExplosion(List<int[]> cells) {
@@ -591,11 +707,42 @@ public class BombermanGame implements Initializable {
         int playerIndex;
         String name;
 
+        // Attributs pour les power-ups
+        int bombLimit = 2;
+        int explosionRadius = 2;
+        int speed = MOVEMENT_DELAY;
+        boolean canKickBombs = false;
+        boolean isInvincible = false;
+
         Player(int x, int y, int playerIndex, String name) {
             this.x = x;
             this.y = y;
             this.playerIndex = playerIndex;
             this.name = name;
+        }
+
+        void applyPowerUp(PowerUp.Type type) {
+            switch (type) {
+                case BOMB_UP:
+                    bombLimit++;
+                    break;
+                case FIRE_UP:
+                    explosionRadius++;
+                    break;
+                case KICK_BOMB:
+                    canKickBombs = true;
+                    break;
+                case INVINCIBLE:
+                    isInvincible = true;
+                    // Animation de clignotement
+                    FadeTransition blink = new FadeTransition(Duration.millis(200), visual);
+                    blink.setFromValue(0.6);
+                    blink.setToValue(1.0);
+                    blink.setCycleCount(25); // ~5 secondes
+                    blink.setOnFinished(e -> isInvincible = false);
+                    blink.play();
+                    break;
+            }
         }
     }
 

@@ -1,8 +1,6 @@
 package com.bomberman;
 
-import javafx.animation.FadeTransition;
 import javafx.animation.ScaleTransition;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
