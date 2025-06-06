@@ -4,11 +4,12 @@ import javafx.animation.*;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -27,6 +28,13 @@ public class BombermanGame implements Initializable {
     private static final int CELL_SIZE = 40;
     private static final int MOVEMENT_DELAY = 200; // ms entre chaque mouvement
 
+    // Images du jeu
+    private Image wallImage;
+    private Image destructibleBlockImage;
+    private Image bombImage;
+    private Image explosionImage;
+    private Image[] playerImages = new Image[4];
+
     private Player[] players = new Player[4];
     private boolean[][] walls;
     private boolean[][] destructibleBlocks;
@@ -39,9 +47,56 @@ public class BombermanGame implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        loadImages();
         initializeGame();
         setupGameLoop();
         updateUI();
+    }
+
+    private void loadImages() {
+        try {
+            // Charger les images des éléments du jeu
+            wallImage = new Image(getClass().getResourceAsStream("/images/wall.png"));
+            destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.png"));
+            bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
+            explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
+
+            // Charger les images des joueurs
+            playerImages[0] = new Image(getClass().getResourceAsStream("/images/player1.png"));
+            playerImages[1] = new Image(getClass().getResourceAsStream("/images/player2.png"));
+            playerImages[2] = new Image(getClass().getResourceAsStream("/images/player3.png"));
+            playerImages[3] = new Image(getClass().getResourceAsStream("/images/player4.png"));
+
+        } catch (Exception e) {
+            System.err.println("Erreur lors du chargement des images: " + e.getMessage());
+            // Créer des images de remplacement si les fichiers ne sont pas trouvés
+            createPlaceholderImages();
+        }
+    }
+
+    private void createPlaceholderImages() {
+        // Images de remplacement colorées (32x32 pixels)
+        wallImage = createColoredImage(32, 32, 0xFF7F8C8D);
+        destructibleBlockImage = createColoredImage(32, 32, 0xFFE67E22);
+        bombImage = createColoredImage(28, 28, 0xFF2C3E50);
+        explosionImage = createColoredImage(32, 32, 0xFFF1C40F);
+
+        playerImages[0] = createColoredImage(30, 30, 0xFF3498DB); // Bleu
+        playerImages[1] = createColoredImage(30, 30, 0xFFE74C3C); // Rouge
+        playerImages[2] = createColoredImage(30, 30, 0xFF27AE60); // Vert
+        playerImages[3] = createColoredImage(30, 30, 0xFF9B59B6); // Violet
+    }
+
+    private Image createColoredImage(int width, int height, int color) {
+        javafx.scene.image.WritableImage image = new javafx.scene.image.WritableImage(width, height);
+        javafx.scene.image.PixelWriter pixelWriter = image.getPixelWriter();
+
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                pixelWriter.setArgb(x, y, color);
+            }
+        }
+        return image;
     }
 
     private void initializeGame() {
@@ -51,10 +106,10 @@ public class BombermanGame implements Initializable {
         gameEnded = false;
 
         // Initialiser les joueurs
-        players[0] = new Player(1, 1, "player1", "Joueur 1 (ZQSD + A)");
-        players[1] = new Player(GRID_SIZE - 2, 1, "player2", "Joueur 2 (↑↓←→ + Espace)");
-        players[2] = new Player(1, GRID_SIZE - 2, "player3", "Joueur 3 (YGHJ + U)");
-        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, "player4", "Joueur 4 (OKLM + I)");
+        players[0] = new Player(1, 1, 0, "Joueur 1 (ZQSD + A)");
+        players[1] = new Player(GRID_SIZE - 2, 1, 1, "Joueur 2 (↑↓←→ + Espace)");
+        players[2] = new Player(1, GRID_SIZE - 2, 2, "Joueur 3 (YGHJ + U)");
+        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, 3, "Joueur 4 (OKLM + I)");
 
         // Créer le terrain
         for (int x = 0; x < GRID_SIZE; x++) {
@@ -66,16 +121,20 @@ public class BombermanGame implements Initializable {
                 if (x == 0 || x == GRID_SIZE - 1 || y == 0 || y == GRID_SIZE - 1 ||
                         (x % 2 == 0 && y % 2 == 0)) {
                     walls[x][y] = true;
-                    Rectangle wall = new Rectangle(CELL_SIZE, CELL_SIZE);
-                    wall.getStyleClass().add("wall");
-                    cell.getChildren().add(wall);
+                    ImageView wallView = new ImageView(wallImage);
+                    wallView.setFitWidth(CELL_SIZE);
+                    wallView.setFitHeight(CELL_SIZE);
+                    wallView.setPreserveRatio(true);
+                    cell.getChildren().add(wallView);
                 }
                 // Blocs destructibles aléatoires (éviter les zones de spawn)
                 else if (!isSpawnArea(x, y) && Math.random() < 0.5) {
                     destructibleBlocks[x][y] = true;
-                    Rectangle block = new Rectangle(CELL_SIZE, CELL_SIZE);
-                    block.getStyleClass().add("destructible-block");
-                    cell.getChildren().add(block);
+                    ImageView blockView = new ImageView(destructibleBlockImage);
+                    blockView.setFitWidth(CELL_SIZE);
+                    blockView.setFitHeight(CELL_SIZE);
+                    blockView.setPreserveRatio(true);
+                    cell.getChildren().add(blockView);
                 }
 
                 gameGrid.add(cell, x, y);
@@ -83,9 +142,13 @@ public class BombermanGame implements Initializable {
         }
 
         // Créer les joueurs visuellement
-        for (Player player : players) {
-            player.visual = new Rectangle(CELL_SIZE - 4, CELL_SIZE - 4);
-            player.visual.getStyleClass().add(player.styleClass);
+        for (int i = 0; i < players.length; i++) {
+            Player player = players[i];
+            player.visual = new ImageView(playerImages[player.playerIndex]);
+            player.visual.setFitWidth(CELL_SIZE - 4);
+            player.visual.setFitHeight(CELL_SIZE - 4);
+            player.visual.setPreserveRatio(true);
+
             StackPane playerCell = (StackPane) getNodeFromGridPane(player.x, player.y);
             playerCell.getChildren().add(player.visual);
             lastMoveTime.put(player, 0L);
@@ -196,15 +259,17 @@ public class BombermanGame implements Initializable {
         Bomb newBomb = new Bomb(player.x, player.y, player);
         bombs.add(newBomb);
 
-        Rectangle bombRect = new Rectangle(CELL_SIZE - 8, CELL_SIZE - 8);
-        bombRect.getStyleClass().add("bomb");
-        newBomb.visual = bombRect;
+        ImageView bombView = new ImageView(bombImage);
+        bombView.setFitWidth(CELL_SIZE - 8);
+        bombView.setFitHeight(CELL_SIZE - 8);
+        bombView.setPreserveRatio(true);
+        newBomb.visual = bombView;
 
         StackPane cell = (StackPane) getNodeFromGridPane(player.x, player.y);
-        cell.getChildren().add(bombRect);
+        cell.getChildren().add(bombView);
 
         // Animation de pulsation de la bombe
-        ScaleTransition pulse = new ScaleTransition(Duration.millis(500), bombRect);
+        ScaleTransition pulse = new ScaleTransition(Duration.millis(500), bombView);
         pulse.setFromX(1.0);
         pulse.setFromY(1.0);
         pulse.setToX(1.2);
@@ -268,24 +333,26 @@ public class BombermanGame implements Initializable {
             StackPane cell = (StackPane) getNodeFromGridPane(x, y);
 
             // Trouver et retirer le bloc destructible
-            cell.getChildren().removeIf(node ->
-                    node instanceof Rectangle && node.getStyleClass().contains("destructible-block"));
+            cell.getChildren().removeIf(node -> node instanceof ImageView &&
+                    ((ImageView) node).getImage() == destructibleBlockImage);
         }
     }
 
     private void showExplosion(List<int[]> cells) {
         for (int[] cell : cells) {
-            Rectangle explosion = new Rectangle(CELL_SIZE, CELL_SIZE);
-            explosion.getStyleClass().add("explosion");
+            ImageView explosionView = new ImageView(explosionImage);
+            explosionView.setFitWidth(CELL_SIZE);
+            explosionView.setFitHeight(CELL_SIZE);
+            explosionView.setPreserveRatio(true);
 
             StackPane cellPane = (StackPane) getNodeFromGridPane(cell[0], cell[1]);
-            cellPane.getChildren().add(explosion);
+            cellPane.getChildren().add(explosionView);
 
             // Animation d'explosion
-            FadeTransition fade = new FadeTransition(Duration.millis(500), explosion);
+            FadeTransition fade = new FadeTransition(Duration.millis(500), explosionView);
             fade.setFromValue(1.0);
             fade.setToValue(0.0);
-            fade.setOnFinished(e -> cellPane.getChildren().remove(explosion));
+            fade.setOnFinished(e -> cellPane.getChildren().remove(explosionView));
             fade.play();
         }
     }
@@ -399,21 +466,21 @@ public class BombermanGame implements Initializable {
     private static class Player {
         int x, y;
         boolean alive = true;
-        Rectangle visual;
-        String styleClass;
+        ImageView visual;
+        int playerIndex;
         String name;
 
-        Player(int x, int y, String styleClass, String name) {
+        Player(int x, int y, int playerIndex, String name) {
             this.x = x;
             this.y = y;
-            this.styleClass = styleClass;
+            this.playerIndex = playerIndex;
             this.name = name;
         }
     }
 
     private static class Bomb {
         int x, y;
-        Rectangle visual;
+        ImageView visual;
         Player owner;
 
         Bomb(int x, int y, Player owner) {
