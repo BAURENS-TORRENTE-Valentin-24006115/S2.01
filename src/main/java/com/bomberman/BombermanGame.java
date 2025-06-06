@@ -99,6 +99,14 @@ public class BombermanGame implements Initializable {
         spriteManager = new SpriteManager(null);
     }
 
+    private void createPlaceholderPowerUpImages() {
+        // Images de remplacement pour les power-ups
+        powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = createColoredImage(32, 32, 0xFF3498DB);
+        powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = createColoredImage(32, 32, 0xFFE74C3C);
+        powerUpImages[PowerUp.Type.KICK_BOMB.ordinal()] = createColoredImage(32, 32, 0xFF2ECC71);
+        powerUpImages[PowerUp.Type.INVINCIBLE.ordinal()] = createColoredImage(32, 32, 0xFF9B59B6);
+    }
+
     private Image createColoredImage(int width, int height, int color) {
         javafx.scene.image.WritableImage image = new javafx.scene.image.WritableImage(width, height);
         javafx.scene.image.PixelWriter pixelWriter = image.getPixelWriter();
