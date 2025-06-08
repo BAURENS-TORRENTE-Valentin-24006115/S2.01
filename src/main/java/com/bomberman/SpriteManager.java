@@ -8,22 +8,38 @@ import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 
 public class SpriteManager {
-    private Image spritesheet;
-    private static final int SPRITE_WIDTH = 16;
-    private static final int SPRITE_HEIGHT = 24;
-    private static final int COLUMNS_PER_PLAYER = 3;
-    private static final int TOTAL_COLUMNS = 12;
-    private static final int TOTAL_ROWS = 6;
+    private final Image[] playerSpritesheets;  // Une spritesheet par joueur
+    private static final int SPRITE_WIDTH = 28; // Largeur d'une case
+    private static final int SPRITE_HEIGHT = 28; // Hauteur d'une case
+    private static final int FRAMES_PER_ANIMATION = 3;
 
-    // Définir les animations disponibles
+    // Nombre de lignes et colonnes dans chaque spritesheet
+    private static final int ROWS = 6; // 6 lignes d'animation
+    private static final int COLUMNS = 3; // 3 frames par animation
+
+    // Représente une case spécifique dans la spritesheet
+    public static class SpriteCell {
+        private final int row;
+        private final int column;
+
+        public SpriteCell(int row, int column) {
+            this.row = row;
+            this.column = column;
+        }
+
+        public int getRow() { return row; }
+        public int getColumn() { return column; }
+    }
+
+    // Définir les animations avec leurs lignes correspondantes
     public enum Animation {
-        IDLE(0),
         WALK_DOWN(0),
         WALK_UP(1),
-        WALK_RIGHT(2),
+        WALK_LEFT(2),
         CELEBRATE(3),
         DEATH(4),
-        WALK_LEFT(5);
+        WALK_RIGHT(5),
+        IDLE(0); // Utilise WALK_DOWN pour idle
 
         private final int row;
 
@@ -40,51 +56,63 @@ public class SpriteManager {
         DOWN, UP, LEFT, RIGHT, IDLE
     }
 
-    public SpriteManager(Image spritesheet) {
-        this.spritesheet = spritesheet;
+    public SpriteManager(Image[] playerSpritesheets) {
+        this.playerSpritesheets = playerSpritesheets;
     }
 
     /**
-     * Extrait un sprite spécifique de la spritesheet
-     * @param playerIndex Index du joueur (0-3)
-     * @param animation Type d'animation
-     * @param frame Frame de l'animation (0-2, sauf pour IDLE qui n'a qu'une frame)
-     * @return Image du sprite
+     * Vérifie si les spritesheets sont correctement chargées
      */
-    public Image getSprite(int playerIndex, Animation animation, int frame) {
-        if (spritesheet == null) {
+    public boolean areSpritesSheetsLoaded() {
+        if (playerSpritesheets == null) return false;
+
+        for (Image sheet : playerSpritesheets) {
+            if (sheet == null || sheet.isError()) return false;
+        }
+        return true;
+    }
+
+    /**
+     * Extrait un sprite en utilisant une case spécifique
+     */
+    public Image getSprite(int playerIndex, SpriteCell cell) {
+        if (playerSpritesheets == null || playerIndex >= playerSpritesheets.length ||
+                playerSpritesheets[playerIndex] == null) {
             return createPlaceholderSprite(playerIndex);
         }
 
-        int baseColumn = playerIndex * COLUMNS_PER_PLAYER;
-        int column = baseColumn;
-
-        // Pour l'animation IDLE, on prend seulement la première colonne
-        if (animation == Animation.IDLE) {
-            column = baseColumn;
-        } else {
-            // Pour les autres animations, on cycle entre les 3 frames
-            column = baseColumn + (frame % COLUMNS_PER_PLAYER);
-        }
-
-        int row = animation.getRow();
+        Image spritesheet = playerSpritesheets[playerIndex];
 
         // Calculer les coordonnées dans la spritesheet
-        int x = column * SPRITE_WIDTH;
-        int y = row * SPRITE_HEIGHT;
+        int x = cell.getColumn() * SPRITE_WIDTH;
+        int y = cell.getRow() * SPRITE_HEIGHT;
+
+        // S'assurer que les coordonnées sont dans les limites
+        if (x + SPRITE_WIDTH > spritesheet.getWidth()) x = 0;
+        if (y + SPRITE_HEIGHT > spritesheet.getHeight()) y = 0;
 
         // Extraire le sprite
-        WritableImage sprite = new WritableImage(spritesheet.getPixelReader(),
+        return new WritableImage(spritesheet.getPixelReader(),
                 x, y, SPRITE_WIDTH, SPRITE_HEIGHT);
+    }
 
-        return sprite;
+    /**
+     * Extrait un sprite en utilisant une animation et une frame
+     * Cette méthode garde la compatibilité avec le code existant
+     */
+    public Image getSprite(int playerIndex, Animation animation, int frame) {
+        int column = (animation == Animation.IDLE) ? 1 : (frame % FRAMES_PER_ANIMATION);
+        return getSprite(playerIndex, new SpriteCell(animation.getRow(), column));
     }
 
     /**
      * Crée un sprite de remplacement coloré si la spritesheet n'est pas disponible
      */
+    /**
+     * Crée un sprite de remplacement coloré si la spritesheet n'est pas disponible
+     */
     private Image createPlaceholderSprite(int playerIndex) {
-        int[] colors = {0xFF3498DB, 0xFFE74C3C, 0xFF27AE60, 0xFF9B59B6}; // Bleu, Rouge, Vert, Violet
+        int[] colors = {0xFFFFFFFF, 0xFFFF69B4, 0xFFFF4500, 0xFF0000FF}; // Blanc, Rose, Orange/Rouge, Bleu
 
         WritableImage image = new WritableImage(SPRITE_WIDTH, SPRITE_HEIGHT);
         var pixelWriter = image.getPixelWriter();
@@ -101,6 +129,24 @@ public class SpriteManager {
     }
 
     /**
+     * Retourne toutes les cases d'une animation spécifique
+     */
+    public SpriteCell[] getCellsForAnimation(Animation animation) {
+        SpriteCell[] cells = new SpriteCell[FRAMES_PER_ANIMATION];
+        for (int i = 0; i < FRAMES_PER_ANIMATION; i++) {
+            cells[i] = new SpriteCell(animation.getRow(), i);
+        }
+        return cells;
+    }
+
+    /**
+     * Retourne une case spécifique dans la grille
+     */
+    public SpriteCell getCell(int row, int column) {
+        return new SpriteCell(row, column);
+    }
+
+    /**
      * Détermine l'animation appropriée basée sur la direction
      */
     public static Animation getAnimationForDirection(Direction direction) {
@@ -113,18 +159,34 @@ public class SpriteManager {
             default: return Animation.IDLE;
         }
     }
+
+    /**
+     * Retourne le nombre total de lignes dans la spritesheet
+     */
+    public int getTotalRows() {
+        return ROWS;
+    }
+
+    /**
+     * Retourne le nombre total de colonnes dans la spritesheet
+     */
+    public int getTotalColumns() {
+        return COLUMNS;
+    }
 }
 
 /**
  * Classe pour gérer les animations des joueurs
+ * Compatible avec le nouveau système de cases
  */
 class PlayerAnimator {
-    private ImageView imageView;
-    private SpriteManager spriteManager;
-    private int playerIndex;
+    private final ImageView imageView;
+    private final SpriteManager spriteManager;
+    private final int playerIndex;
     private Timeline animationTimeline;
     private int currentFrame = 0;
     private SpriteManager.Animation currentAnimation;
+    private SpriteManager.SpriteCell[] currentAnimationCells;
     private boolean isAnimating = false;
 
     public PlayerAnimator(ImageView imageView, SpriteManager spriteManager, int playerIndex) {
@@ -138,109 +200,141 @@ class PlayerAnimator {
     }
 
     /**
-     * Démarre une animation
+     * Met à jour l'image avec le sprite actuel
      */
-    public void startAnimation(SpriteManager.Animation animation) {
-        if (currentAnimation == animation && isAnimating) {
-            return; // Animation déjà en cours
+    private void updateSprite() {
+        if (currentAnimationCells != null && isAnimating) {
+            // Utiliser le système de cases pour l'animation
+            imageView.setImage(
+                    spriteManager.getSprite(playerIndex, currentAnimationCells[currentFrame])
+            );
+        } else {
+            // Utiliser le système d'animation original
+            imageView.setImage(
+                    spriteManager.getSprite(playerIndex, currentAnimation, currentFrame)
+            );
         }
-
-        stopAnimation();
-        currentAnimation = animation;
-        currentFrame = 0;
-
-        if (animation == SpriteManager.Animation.IDLE) {
-            updateSprite();
-            return;
-        }
-
-        // Créer une timeline pour l'animation
-        animationTimeline = new Timeline(
-                new KeyFrame(Duration.millis(200), e -> {
-                    currentFrame = (currentFrame + 1) % 3; // Cycle entre 0, 1, 2
-                    updateSprite();
-                })
-        );
-
-        animationTimeline.setCycleCount(Timeline.INDEFINITE);
-        animationTimeline.play();
-        isAnimating = true;
     }
 
     /**
-     * Démarre une animation de direction basée sur le mouvement
+     * Afficher une case spécifique
      */
-    public void startDirectionAnimation(SpriteManager.Direction direction) {
-        SpriteManager.Animation animation = SpriteManager.getAnimationForDirection(direction);
-        startAnimation(animation);
+    public void showCell(SpriteManager.SpriteCell cell) {
+        dispose(); // Arrête toute animation en cours
+        isAnimating = false;
+        imageView.setImage(spriteManager.getSprite(playerIndex, cell));
     }
 
     /**
-     * Arrête l'animation en cours
+     * Arrête les animations en cours
      */
-    public void stopAnimation() {
+    public void dispose() {
         if (animationTimeline != null) {
             animationTimeline.stop();
-            animationTimeline = null;
         }
         isAnimating = false;
     }
 
     /**
-     * Joue une animation de célébration
+     * Démarre une animation selon la direction
      */
-    public void celebrate() {
-        startAnimation(SpriteManager.Animation.CELEBRATE);
+    public void startDirectionAnimation(SpriteManager.Direction direction) {
+        currentAnimation = SpriteManager.getAnimationForDirection(direction);
+        currentAnimationCells = spriteManager.getCellsForAnimation(currentAnimation);
+        startAnimation(125, true); // 125ms par frame, en boucle
     }
 
     /**
-     * Joue une animation de mort
+     * Positionne le personnage en idle
+     */
+    public void idle() {
+        dispose();
+        currentAnimation = SpriteManager.Animation.IDLE;
+        currentFrame = 1; // Frame du milieu pour idle
+        updateSprite();
+    }
+
+    /**
+     * Démarre l'animation de mort
      */
     public void playDeathAnimation() {
-        stopAnimation();
+        dispose();
         currentAnimation = SpriteManager.Animation.DEATH;
-        currentFrame = 0;
+        currentAnimationCells = spriteManager.getCellsForAnimation(currentAnimation);
+        startAnimation(200, false); // 200ms par frame, pas de boucle
+    }
 
-        // Animation de mort avec fade out
+    /**
+     * Démarre l'animation de célébration
+     */
+    public void celebrate() {
+        dispose();
+        currentAnimation = SpriteManager.Animation.CELEBRATE;
+        currentAnimationCells = spriteManager.getCellsForAnimation(currentAnimation);
+        startAnimation(300, true); // 300ms par frame, en boucle
+    }
+
+    /**
+     * Démarre une animation avec les paramètres spécifiés
+     */
+    /**
+     * Démarre une animation avec les paramètres spécifiés
+     */
+    private void startAnimation(int frameDuration, boolean loop) {
+        dispose();
+        currentFrame = 0;
+        isAnimating = true;
+
         animationTimeline = new Timeline(
-                new KeyFrame(Duration.millis(150), e -> {
-                    if (currentFrame < 3) {
-                        updateSprite();
-                        currentFrame++;
+                new KeyFrame(Duration.millis(frameDuration), e -> {
+                    updateSprite();
+                    if (currentAnimationCells != null) {
+                        currentFrame = (currentFrame + 1) % currentAnimationCells.length;
                     } else {
-                        // Fade out après l'animation de mort
-                        imageView.setOpacity(imageView.getOpacity() - 0.1);
-                        if (imageView.getOpacity() <= 0.1) {
-                            stopAnimation();
-                        }
+                        currentFrame = (currentFrame + 1) % 3;
                     }
                 })
         );
 
-        animationTimeline.setCycleCount(Timeline.INDEFINITE);
+        if (loop) {
+            animationTimeline.setCycleCount(Timeline.INDEFINITE);
+        } else {
+            animationTimeline.setCycleCount(currentAnimationCells != null ?
+                    currentAnimationCells.length : 3);
+        }
+
         animationTimeline.play();
-        isAnimating = true;
     }
 
     /**
-     * Revient à l'animation idle
+     * Retourne une séquence de cases personnalisée pour créer une animation
      */
-    public void idle() {
-        startAnimation(SpriteManager.Animation.IDLE);
+    public SpriteManager.SpriteCell[] createCustomAnimationSequence(int[] rows, int[] columns) {
+        if (rows.length != columns.length) {
+            throw new IllegalArgumentException("Les tableaux de lignes et colonnes doivent avoir la même taille");
+        }
+
+        SpriteManager.SpriteCell[] cells = new SpriteManager.SpriteCell[rows.length];
+        for (int i = 0; i < rows.length; i++) {
+            cells[i] = new SpriteManager.SpriteCell(rows[i], columns[i]);
+        }
+        return cells;
     }
 
     /**
-     * Met à jour le sprite affiché
+     * Joue une animation personnalisée à partir d'une séquence de cases
      */
-    private void updateSprite() {
-        Image sprite = spriteManager.getSprite(playerIndex, currentAnimation, currentFrame);
-        imageView.setImage(sprite);
+    public void playCustomAnimation(SpriteManager.SpriteCell[] cells, int frameDuration, boolean loop) {
+        this.currentAnimationCells = cells;
+        startAnimation(frameDuration, loop);
     }
 
     /**
-     * Nettoie les ressources
+     * Affiche une séquence de cellules personnalisée
      */
-    public void dispose() {
-        stopAnimation();
+    public void showCustomCells(SpriteManager.SpriteCell[] cells, int frameDuration, boolean loop) {
+        dispose();
+        currentAnimationCells = cells;
+        startAnimation(frameDuration, loop);
     }
 }

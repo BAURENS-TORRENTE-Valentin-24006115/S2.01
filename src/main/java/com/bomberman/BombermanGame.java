@@ -67,16 +67,30 @@ public class BombermanGame implements Initializable {
             bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
             explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
 
-            // Charger la spritesheet des joueurs
-            spritesheetImage = new Image(getClass().getResourceAsStream("/images/players_spritesheet.png"));
-            spriteManager = new SpriteManager(spritesheetImage);
+            // Charger les spritesheets individuelles pour chaque joueur
+            Image[] playerSpritesheets = new Image[4];
+            playerSpritesheets[0] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player1_spritesheet.png"));
+            playerSpritesheets[1] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player2_spritesheet.png"));
+            playerSpritesheets[2] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player3_spritesheet.png"));
+            playerSpritesheets[3] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player4_spritesheet.png"));
+
+            spriteManager = new SpriteManager(playerSpritesheets);
+
+            // Vérifier si les images sont correctement chargées
+            if (spriteManager.areSpritesSheetsLoaded()) {
+                System.out.println("Toutes les spritesheets des joueurs sont chargées correctement");
+            } else {
+                System.err.println("Certaines spritesheets n'ont pas pu être chargées");
+            }
 
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des images: " + e.getMessage());
+            e.printStackTrace();
             // Créer des images de remplacement si les fichiers ne sont pas trouvés
             createPlaceholderImages();
         }
-        // Charger les images des power-ups
+
+        // Charger les power-ups
         try {
             powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_bomb.png"));
             powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_fire.png"));
@@ -755,6 +769,71 @@ public class BombermanGame implements Initializable {
             this.x = x;
             this.y = y;
             this.owner = owner;
+        }
+    }
+
+    // Dans la classe Player du BombermanGame.java
+    // Dans la classe Player
+    public void useCustomAnimation(String name) {
+        switch (name) {
+            case "idle":
+                // Animation d'attente
+                animator.showCell(new SpriteManager.SpriteCell(0, 1));
+                break;
+
+            case "victory":
+                // Animation de victoire/célébration
+                SpriteManager.SpriteCell[] victoryCells = {
+                        new SpriteManager.SpriteCell(3, 0),
+                        new SpriteManager.SpriteCell(3, 1)
+                };
+                animator.showCustomCells(victoryCells, 300, true);
+                break;
+
+            case "moving_down":
+                // Animation de déplacement vers le bas
+                SpriteManager.SpriteCell[] downCells = {
+                        new SpriteManager.SpriteCell(0, 1),
+                        new SpriteManager.SpriteCell(0, 2)
+                };
+                animator.showCustomCells(downCells, 150, true);
+                break;
+
+            case "moving_up":
+                // Animation de déplacement vers le haut
+                SpriteManager.SpriteCell[] upCells = {
+                        new SpriteManager.SpriteCell(1, 1),
+                        new SpriteManager.SpriteCell(1, 2)
+                };
+                animator.showCustomCells(upCells, 150, true);
+                break;
+
+            case "moving_left":
+                // Animation de déplacement vers la gauche
+                SpriteManager.SpriteCell[] leftCells = {
+                        new SpriteManager.SpriteCell(2, 1),
+                        new SpriteManager.SpriteCell(2, 2)
+                };
+                animator.showCustomCells(leftCells, 150, true);
+                break;
+
+            case "moving_right":
+                // Animation de déplacement vers la droite
+                SpriteManager.SpriteCell[] rightCells = {
+                        new SpriteManager.SpriteCell(5, 1),
+                        new SpriteManager.SpriteCell(5, 2)
+                };
+                animator.showCustomCells(rightCells, 150, true);
+                break;
+
+            case "death":
+                // Animation de mort
+                SpriteManager.SpriteCell[] deathCells = {
+                        new SpriteManager.SpriteCell(4, 0),
+                        new SpriteManager.SpriteCell(4, 1),
+                };
+                animator.showCustomCells(deathCells, 200, false);
+                break;
         }
     }
 }
