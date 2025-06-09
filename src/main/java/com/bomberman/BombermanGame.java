@@ -354,6 +354,7 @@ public class BombermanGame implements Initializable {
         int newX = player.x + dx;
         int newY = player.y + dy;
 
+        // Vérifier si le joueur peut se déplacer directement à cette position
         if (canMoveTo(newX, newY)) {
             // Retirer le joueur de l'ancienne position
             StackPane oldCell = (StackPane) getNodeFromGridPane(player.x, player.y);
@@ -370,6 +371,32 @@ public class BombermanGame implements Initializable {
 
             return true;
         }
+        // Si le joueur ne peut pas se déplacer directement mais a la capacité de pousser les bombes
+        else if (player.canKickBombs) {
+            // Vérifier si une bombe se trouve à la position cible
+            for (Bomb bomb : bombs) {
+                if (bomb.x == newX && bomb.y == newY) {
+                    // Essayer de pousser la bombe dans la même direction
+                    if (tryPushBomb(bomb, dx, dy)) {
+                        // Si la bombe a été poussée, permettre au joueur de se déplacer
+                        StackPane oldCell = (StackPane) getNodeFromGridPane(player.x, player.y);
+                        oldCell.getChildren().remove(player.visual);
+
+                        player.x = newX;
+                        player.y = newY;
+                        StackPane newCell = (StackPane) getNodeFromGridPane(player.x, player.y);
+                        newCell.getChildren().add(player.visual);
+
+                        // Vérifier si un power-up est disponible à cette position
+                        checkForPowerUp(player, newX, newY);
+
+                        return true;
+                    }
+                    break;
+                }
+            }
+        }
+
         return false;
     }
 
@@ -437,21 +464,117 @@ public class BombermanGame implements Initializable {
     }
 
     private boolean tryPushBomb(Bomb bomb, int dx, int dy) {
-        int newX = bomb.x + dx;
-        int newY = bomb.y + dy;
+        // Position initiale
+        final int startX = bomb.x;
+        final int startY = bomb.y;
 
-        // Vérifier si la position est libre
-        if (!canMoveTo(newX, newY)) return false;
+        // Récupérer le joueur qui pousse la bombe
+        Player pusher = null;
+        for (Player p : players) {
+            if (p.alive && p.x == startX - dx && p.y == startY - dy) {
+                pusher = p;
+                break;
+            }
+        }
 
-        // Déplacer la bombe
+        // Calculer toutes les positions intermédiaires
+        List<int[]> path = new ArrayList<>();
+        int nextX = startX + dx;
+        int nextY = startY + dy;
+
+        while (canMoveTo(nextX, nextY)) {
+            // Vérifier si un autre joueur (différent du pusher) se trouve à cette position
+            boolean playerInPath = false;
+            for (Player player : players) {
+                if (player != pusher && player.alive && player.x == nextX && player.y == nextY) {
+                    playerInPath = true;
+                    break;
+                }
+            }
+
+            // Si un joueur bloque le chemin, arrêter la progression
+            if (playerInPath) {
+                break;
+            }
+
+            path.add(new int[]{nextX, nextY});
+            nextX += dx;
+            nextY += dy;
+        }
+
+        // Si la bombe ne peut pas bouger, retourner false
+        if (path.isEmpty()) {
+            return false;
+        }
+
+        // Retirer la bombe de sa position actuelle
         StackPane oldCell = (StackPane) getNodeFromGridPane(bomb.x, bomb.y);
         oldCell.getChildren().remove(bomb.visual);
 
-        bomb.x = newX;
-        bomb.y = newY;
+        // Premier mouvement immédiat : déplacer directement vers la première position
+        int firstTargetX = path.get(0)[0];
+        int firstTargetY = path.get(0)[1];
 
-        StackPane newCell = (StackPane) getNodeFromGridPane(newX, newY);
-        newCell.getChildren().add(bomb.visual);
+        // Mettre à jour la position logique
+        bomb.x = firstTargetX;
+        bomb.y = firstTargetY;
+
+        // Ajouter à la nouvelle cellule
+        StackPane firstCell = (StackPane) getNodeFromGridPane(firstTargetX, firstTargetY);
+        firstCell.getChildren().add(bomb.visual);
+        bomb.visual.toFront();
+
+        // S'il n'y a qu'une seule position, on a terminé
+        if (path.size() == 1) {
+            return true;
+        }
+
+        // Créer une séquence de pauses pour les mouvements restants
+        SequentialTransition sequentialTransition = new SequentialTransition();
+
+        for (int i = 1; i < path.size(); i++) {
+            final int index = i;
+            final int targetX = path.get(i)[0];
+            final int targetY = path.get(i)[1];
+
+            // Créer une pause de 0.25 seconde
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.25));
+
+            // Action après la pause
+            pause.setOnFinished(e -> {
+                // Vérifier si la bombe a explosé pendant le déplacement
+                if (!bombs.contains(bomb)) {
+                    sequentialTransition.stop();
+                    if (bomb.visual != null) {
+                        bomb.visual.setVisible(false);
+                    }
+                    return;
+                }
+
+                // Retirer la bombe de la cellule précédente
+                StackPane prevCell = (StackPane) getNodeFromGridPane(path.get(index-1)[0], path.get(index-1)[1]);
+                prevCell.getChildren().remove(bomb.visual);
+
+                // Mettre à jour la position logique
+                bomb.x = targetX;
+                bomb.y = targetY;
+
+                // Ajouter à la nouvelle cellule
+                StackPane newCell = (StackPane) getNodeFromGridPane(targetX, targetY);
+                newCell.getChildren().add(bomb.visual);
+
+                // S'assurer que la bombe reste au premier plan
+                bomb.visual.toFront();
+            });
+
+            // Ajouter la pause à la séquence
+            sequentialTransition.getChildren().add(pause);
+        }
+
+        // Jouer la séquence complète si elle contient des transitions
+        if (!sequentialTransition.getChildren().isEmpty()) {
+            sequentialTransition.play();
+        }
 
         return true;
     }
@@ -614,6 +737,27 @@ public class BombermanGame implements Initializable {
     private void killPlayer(Player player) {
         if (!player.alive) return;
 
+        // Vérifier si le joueur est invincible
+        if (player.isInvincible) {
+            // Ne pas tuer le joueur invincible
+
+            // Afficher un effet visuel pour indiquer que l'invincibilité a protégé le joueur
+            Label shieldLabel = new Label("PROTECTED!");
+            shieldLabel.getStyleClass().add("shield-text");
+            StackPane cell = (StackPane) getNodeFromGridPane(player.x, player.y);
+            cell.getChildren().add(shieldLabel);
+
+            // Animation de l'effet de protection
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(800), shieldLabel);
+            fadeOut.setFromValue(1.0);
+            fadeOut.setToValue(0.0);
+            fadeOut.setDelay(Duration.millis(300));
+            fadeOut.setOnFinished(e -> cell.getChildren().remove(shieldLabel));
+            fadeOut.play();
+
+            return;
+        }
+
         player.alive = false;
 
         // Jouer l'animation de mort
@@ -753,7 +897,11 @@ public class BombermanGame implements Initializable {
                     blink.setFromValue(0.6);
                     blink.setToValue(1.0);
                     blink.setCycleCount(25); // ~5 secondes
-                    blink.setOnFinished(e -> isInvincible = false);
+                    blink.setAutoReverse(true); // Assure un effet de clignotement
+                    blink.setOnFinished(e -> {
+                        isInvincible = false;
+                        visual.setOpacity(1.0); // Rétablir l'opacité normale à la fin
+                    });
                     blink.play();
                     break;
             }
