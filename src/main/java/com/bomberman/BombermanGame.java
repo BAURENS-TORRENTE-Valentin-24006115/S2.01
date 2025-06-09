@@ -758,6 +758,71 @@ public class BombermanGame implements Initializable {
                     break;
             }
         }
+
+        // Dans la classe Player du BombermanGame.java
+        // Dans la classe Player
+        public void useCustomAnimation(String name) {
+            switch (name) {
+                case "idle":
+                    // Animation d'attente
+                    animator.showCell(new SpriteManager.SpriteCell(0, 1));
+                    break;
+
+                case "victory":
+                    // Animation de victoire/célébration
+                    SpriteManager.SpriteCell[] victoryCells = {
+                            new SpriteManager.SpriteCell(3, 0),
+                            new SpriteManager.SpriteCell(3, 1)
+                    };
+                    animator.showCustomCells(victoryCells, 300, true);
+                    break;
+
+                case "moving_down":
+                    // Animation de déplacement vers le bas
+                    SpriteManager.SpriteCell[] downCells = {
+                            new SpriteManager.SpriteCell(0, 1),
+                            new SpriteManager.SpriteCell(0, 2)
+                    };
+                    animator.showCustomCells(downCells, 150, true);
+                    break;
+
+                case "moving_up":
+                    // Animation de déplacement vers le haut
+                    SpriteManager.SpriteCell[] upCells = {
+                            new SpriteManager.SpriteCell(1, 1),
+                            new SpriteManager.SpriteCell(1, 2)
+                    };
+                    animator.showCustomCells(upCells, 150, true);
+                    break;
+
+                case "moving_left":
+                    // Animation de déplacement vers la gauche
+                    SpriteManager.SpriteCell[] leftCells = {
+                            new SpriteManager.SpriteCell(2, 1),
+                            new SpriteManager.SpriteCell(2, 2)
+                    };
+                    animator.showCustomCells(leftCells, 150, true);
+                    break;
+
+                case "moving_right":
+                    // Animation de déplacement vers la droite
+                    SpriteManager.SpriteCell[] rightCells = {
+                            new SpriteManager.SpriteCell(5, 1),
+                            new SpriteManager.SpriteCell(5, 2)
+                    };
+                    animator.showCustomCells(rightCells, 150, true);
+                    break;
+
+                case "death":
+                    // Animation de mort
+                    SpriteManager.SpriteCell[] deathCells = {
+                            new SpriteManager.SpriteCell(4, 0),
+                            new SpriteManager.SpriteCell(4, 1),
+                    };
+                    animator.showCustomCells(deathCells, 200, false);
+                    break;
+            }
+        }
     }
 
     private static class Bomb {
@@ -772,68 +837,4 @@ public class BombermanGame implements Initializable {
         }
     }
 
-    // Dans la classe Player du BombermanGame.java
-    // Dans la classe Player
-    public void useCustomAnimation(String name) {
-        switch (name) {
-            case "idle":
-                // Animation d'attente
-                animator.showCell(new SpriteManager.SpriteCell(0, 1));
-                break;
-
-            case "victory":
-                // Animation de victoire/célébration
-                SpriteManager.SpriteCell[] victoryCells = {
-                        new SpriteManager.SpriteCell(3, 0),
-                        new SpriteManager.SpriteCell(3, 1)
-                };
-                animator.showCustomCells(victoryCells, 300, true);
-                break;
-
-            case "moving_down":
-                // Animation de déplacement vers le bas
-                SpriteManager.SpriteCell[] downCells = {
-                        new SpriteManager.SpriteCell(0, 1),
-                        new SpriteManager.SpriteCell(0, 2)
-                };
-                animator.showCustomCells(downCells, 150, true);
-                break;
-
-            case "moving_up":
-                // Animation de déplacement vers le haut
-                SpriteManager.SpriteCell[] upCells = {
-                        new SpriteManager.SpriteCell(1, 1),
-                        new SpriteManager.SpriteCell(1, 2)
-                };
-                animator.showCustomCells(upCells, 150, true);
-                break;
-
-            case "moving_left":
-                // Animation de déplacement vers la gauche
-                SpriteManager.SpriteCell[] leftCells = {
-                        new SpriteManager.SpriteCell(2, 1),
-                        new SpriteManager.SpriteCell(2, 2)
-                };
-                animator.showCustomCells(leftCells, 150, true);
-                break;
-
-            case "moving_right":
-                // Animation de déplacement vers la droite
-                SpriteManager.SpriteCell[] rightCells = {
-                        new SpriteManager.SpriteCell(5, 1),
-                        new SpriteManager.SpriteCell(5, 2)
-                };
-                animator.showCustomCells(rightCells, 150, true);
-                break;
-
-            case "death":
-                // Animation de mort
-                SpriteManager.SpriteCell[] deathCells = {
-                        new SpriteManager.SpriteCell(4, 0),
-                        new SpriteManager.SpriteCell(4, 1),
-                };
-                animator.showCustomCells(deathCells, 200, false);
-                break;
-        }
-    }
 }

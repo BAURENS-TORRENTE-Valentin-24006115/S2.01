@@ -84,8 +84,8 @@ public class SpriteManager {
         Image spritesheet = playerSpritesheets[playerIndex];
 
         // Calculer les coordonnées dans la spritesheet
-        int x = cell.getColumn() * SPRITE_WIDTH;
-        int y = cell.getRow() * SPRITE_HEIGHT;
+        int x = cell.getColumn() * SPRITE_WIDTH + playerIndex * 2; // Décalage pour chaque joueur
+        int y = cell.getRow() * SPRITE_HEIGHT + cell.getRow();
 
         // S'assurer que les coordonnées sont dans les limites
         if (x + SPRITE_WIDTH > spritesheet.getWidth()) x = 0;
@@ -101,7 +101,7 @@ public class SpriteManager {
      * Cette méthode garde la compatibilité avec le code existant
      */
     public Image getSprite(int playerIndex, Animation animation, int frame) {
-        int column = (animation == Animation.IDLE) ? 1 : (frame % FRAMES_PER_ANIMATION);
+        int column = (animation == Animation.IDLE) ? 0 : (frame % FRAMES_PER_ANIMATION);
         return getSprite(playerIndex, new SpriteCell(animation.getRow(), column));
     }
 
@@ -250,7 +250,7 @@ class PlayerAnimator {
     public void idle() {
         dispose();
         currentAnimation = SpriteManager.Animation.IDLE;
-        currentFrame = 1; // Frame du milieu pour idle
+        currentFrame = 0; // Frame du milieu pour idle
         updateSprite();
     }
 
@@ -262,6 +262,11 @@ class PlayerAnimator {
         currentAnimation = SpriteManager.Animation.DEATH;
         currentAnimationCells = spriteManager.getCellsForAnimation(currentAnimation);
         startAnimation(200, false); // 200ms par frame, pas de boucle
+        // Après la dernière frame, on fait disparaitre le joueur
+        animationTimeline.setOnFinished(e -> {
+            imageView.setImage(null); // Effacer l'image après la mort
+            isAnimating = false; // Marquer comme non animé
+        });
     }
 
     /**
