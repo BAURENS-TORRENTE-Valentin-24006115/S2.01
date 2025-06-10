@@ -173,6 +173,10 @@ public class BombermanGame implements Initializable {
         destructibleBlocks = new boolean[GRID_SIZE][GRID_SIZE];
         gameEnded = false;
 
+        // Vider les listes de bombes et de power-ups
+        bombs.clear();
+        powerUps.clear();
+
         // Nettoyer les anciens animateurs
         for (Player player : players) {
             if (player != null && player.animator != null) {
@@ -661,6 +665,14 @@ public class BombermanGame implements Initializable {
     }
 
     private void explodeBomb(Bomb bomb) {
+        // Vérifier si la bombe existe toujours et n'est pas déjà en train d'exploser
+        if (bomb.exploding || !bombs.contains(bomb)) {
+            return;
+        }
+
+        // Marquer la bombe comme étant en cours d'explosion
+        bomb.exploding = true;
+
         // Retirer la bombe de la liste
         bombs.remove(bomb);
 
@@ -689,10 +701,11 @@ public class BombermanGame implements Initializable {
                 // Vérifier si une autre bombe est touchée
                 for (int j = 0; j < bombs.size(); j++) {
                     Bomb otherBomb = bombs.get(j);
-                    if (otherBomb.x == x && otherBomb.y == y) {
+                    if (otherBomb.x == x && otherBomb.y == y && !otherBomb.exploding) {
                         // Explosion en chaîne retardée de 200ms
+                        final Bomb bombToExplode = otherBomb;
                         Timeline chainReaction = new Timeline(new KeyFrame(Duration.millis(200),
-                                e -> explodeBomb(otherBomb)));
+                                e -> explodeBomb(bombToExplode)));
                         chainReaction.play();
                         break;
                     }
@@ -877,6 +890,16 @@ public class BombermanGame implements Initializable {
     private void restartGame() {
         winnerLabel.setText("");
         winnerLabel.getStyleClass().removeAll("winner-text");
+
+        // Arrêter toutes les animations en cours
+        if (gameLoop != null) {
+            gameLoop.stop();
+        }
+
+        // Nettoyer les anciennes ressources
+        bombs.clear();
+        powerUps.clear();
+
         initializeGame();
         setupGameLoop();
         updateUI();
@@ -1012,6 +1035,7 @@ public class BombermanGame implements Initializable {
         int x, y;
         ImageView visual;
         Player owner;
+        boolean exploding = false;  // Pour éviter les explosions multiples
 
         Bomb(int x, int y, Player owner) {
             this.x = x;
