@@ -7,6 +7,7 @@ public class BotAI {
 
     private BombermanGame game;
     private static final int MAX_PATH_COST = 1000;
+    private Map<BombermanGame.Player, Long> lastBotMoveTime = new HashMap<>();
 
     public BotAI(BombermanGame game) {
         this.game = game;
@@ -45,14 +46,26 @@ public class BotAI {
     public void updateBot(BombermanGame.Player bot, List<BombermanGame.Player> players, List<BombermanGame.Bomb> bombs, boolean[][] walls, boolean[][] destructibleBlocks) {
         if (!bot.alive) return;
 
+        // Vérifier le délai de mouvement
+        long currentTime = System.currentTimeMillis();
+        if (!lastBotMoveTime.containsKey(bot)) {
+            lastBotMoveTime.put(bot, 0L);
+        }
+
+        if (currentTime - lastBotMoveTime.get(bot) <= 200) { // 200ms = 0.2s
+            return; // Ne pas bouger si le délai n'est pas écoulé
+        }
+
         int gridSize = walls.length;
         int[][] dangerMap = computeDangerMap(bombs, walls, destructibleBlocks, gridSize);
 
+        // Code existant pour le mouvement...
         // Priorité maximale: s'échapper d'une bombe ou d'une zone dangereuse
         if (dangerMap[bot.x][bot.y] > 0) {
             int[] safeMove = findSafeMove(bot, dangerMap, walls, destructibleBlocks, bombs, gridSize);
             if (safeMove != null) {
-                game.movePlayer(bot, safeMove[0] - bot.x, safeMove[1] - bot.y);
+                boolean moved = game.movePlayer(bot, safeMove[0] - bot.x, safeMove[1] - bot.y);
+                if (moved) lastBotMoveTime.put(bot, currentTime);
                 return;
             }
         }
@@ -68,11 +81,12 @@ public class BotAI {
             // Ne poser une bombe que si on peut s'échapper après
             if (canEscapeAfterBomb(bot, bombs, walls, destructibleBlocks, gridSize)) {
                 game.placeBomb(bot);
+                lastBotMoveTime.put(bot, currentTime);
                 return;
             }
         }
 
-        // Obtenir le chemin optimal avec détail des coûts
+        // Obtenir le chemin optimal
         PathResult pathResult = findOptimalPath(bot, target, walls, destructibleBlocks, bombs, dangerMap, gridSize);
         if (pathResult == null || pathResult.path.isEmpty()) return;
 
@@ -83,11 +97,13 @@ public class BotAI {
         if (destructibleBlocks[nextX][nextY]) {
             if (canEscapeAfterBomb(bot, bombs, walls, destructibleBlocks, gridSize)) {
                 game.placeBomb(bot);
+                lastBotMoveTime.put(bot, currentTime);
                 return;
             } else {
                 int[] safeMove = findSafeMove(bot, dangerMap, walls, destructibleBlocks, bombs, gridSize);
                 if (safeMove != null) {
-                    game.movePlayer(bot, safeMove[0] - bot.x, safeMove[1] - bot.y);
+                    boolean moved = game.movePlayer(bot, safeMove[0] - bot.x, safeMove[1] - bot.y);
+                    if (moved) lastBotMoveTime.put(bot, currentTime);
                     return;
                 }
             }
@@ -95,7 +111,8 @@ public class BotAI {
 
         // Se déplacer vers la cible
         if (pathResult.path.size() > 0) {
-            game.movePlayer(bot, nextX - bot.x, nextY - bot.y);
+            boolean moved = game.movePlayer(bot, nextX - bot.x, nextY - bot.y);
+            if (moved) lastBotMoveTime.put(bot, currentTime);
         }
     }
 
@@ -180,51 +197,103 @@ public class BotAI {
             }
         }
 
-        // Recherche des mouvements possibles
-        List<int[]> possibleMoves = new ArrayList<>();
-        List<int[]> safeMoves = new ArrayList<>();
+        // Recherche BFS pour trouver le chemin le plus court vers une zone sûre
+        boolean[][] visited = new boolean[gridSize][gridSize];
+        Queue<int[]> queue = new LinkedList<>();
+        // Stocke [x, y, parentX, parentY] pour reconstituer le chemin
+        queue.add(new int[]{bot.x, bot.y, -1, -1});
+        visited[bot.x][bot.y] = true;
+
+        // Map pour stocker les parents [clé: "x,y", valeur: [parentX, parentY]]
+        Map<String, int[]> parents = new HashMap<>();
+        int[] safePoint = null;
+
         int[][] dirs = {{0,1}, {0,-1}, {1,0}, {-1,0}};
 
-        for (int[] dir : dirs) {
-            int nx = bot.x + dir[0];
-            int ny = bot.y + dir[1];
+        // Si on est déjà dans une zone dangereuse, priorité absolue à la sortie
+        boolean inDangerZone = danger[bot.x][bot.y] > 0;
 
-            // Vérifier les limites et obstacles
-            if (nx < 0 || ny < 0 || nx >= gridSize || ny >= gridSize) continue;
-            if (walls[nx][ny] || destructibleBlocks[nx][ny]) continue;
+        while (!queue.isEmpty() && safePoint == null) {
+            int[] current = queue.poll();
+            int x = current[0], y = current[1];
 
-            // Vérifier s'il y a une bombe à cet endroit
-            boolean hasBomb = false;
-            for (BombermanGame.Bomb bomb : bombs) {
-                if (bomb.x == nx && bomb.y == ny) {
-                    hasBomb = true;
-                    break;
+            // Si cette position est sûre, c'est notre destination
+            if (danger[x][y] == 0 && (x != bot.x || y != bot.y)) {
+                safePoint = new int[]{x, y};
+                parents.put(x + "," + y, new int[]{current[2], current[3]});
+                break;
+            }
+
+            // Explorer les voisins
+            for (int[] dir : dirs) {
+                int nx = x + dir[0];
+                int ny = y + dir[1];
+
+                // Vérifier les limites et obstacles
+                if (nx < 0 || ny < 0 || nx >= gridSize || ny >= gridSize) continue;
+                if (walls[nx][ny] || destructibleBlocks[nx][ny] || visited[nx][ny]) continue;
+
+                // Vérifier s'il y a une bombe
+                boolean hasBomb = false;
+                for (BombermanGame.Bomb bomb : bombs) {
+                    if (bomb.x == nx && bomb.y == ny) {
+                        hasBomb = true;
+                        break;
+                    }
                 }
-            }
-            if (hasBomb) continue;
+                if (hasBomb) continue;
 
-            // Si on est sur une bombe, tout mouvement est meilleur que rester
-            if (onBomb) {
-                possibleMoves.add(new int[]{nx, ny});
-            }
+                // Si on est déjà dans une zone dangereuse, n'aller que vers des cases
+                // qui réduisent ou maintiennent le niveau de danger actuel
+                if (inDangerZone && danger[nx][ny] > danger[bot.x][bot.y]) continue;
 
-            // Classement des mouvements par niveau de sécurité
-            if (danger[nx][ny] == 0) {
-                safeMoves.add(new int[]{nx, ny});
-            } else if (danger[nx][ny] < danger[bot.x][bot.y]) {
-                // Si le danger est moindre que la position actuelle, c'est une option
-                possibleMoves.add(new int[]{nx, ny});
+                visited[nx][ny] = true;
+                queue.add(new int[]{nx, ny, x, y});
+                parents.put(nx + "," + ny, new int[]{x, y});
             }
         }
 
-        // Priorité aux cases totalement sûres
-        if (!safeMoves.isEmpty()) {
-            return safeMoves.get(new Random().nextInt(safeMoves.size()));
+        // Si on a trouvé un point sûr, reconstituer le premier pas vers ce point
+        if (safePoint != null) {
+            // Retracer le chemin jusqu'au premier pas
+            int[] current = safePoint;
+            String key = current[0] + "," + current[1];
+
+            while (parents.containsKey(key)) {
+                int[] parent = parents.get(key);
+                // Si le parent est la position du bot, on a trouvé le premier mouvement
+                if (parent[0] == bot.x && parent[1] == bot.y) {
+                    return current;
+                }
+                current = parent;
+                key = current[0] + "," + current[1];
+            }
         }
 
-        // Sinon, prendre une case moins dangereuse que la position actuelle
-        if (!possibleMoves.isEmpty()) {
-            return possibleMoves.get(new Random().nextInt(possibleMoves.size()));
+        // Si on est sur une bombe, prendre n'importe quel mouvement possible
+        // qui ne va pas vers une zone plus dangereuse
+        if (onBomb) {
+            for (int[] dir : dirs) {
+                int nx = bot.x + dir[0];
+                int ny = bot.y + dir[1];
+
+                if (nx < 0 || ny < 0 || nx >= gridSize || ny >= gridSize) continue;
+                if (walls[nx][ny] || destructibleBlocks[nx][ny]) continue;
+
+                boolean hasBomb = false;
+                for (BombermanGame.Bomb bomb : bombs) {
+                    if (bomb.x == nx && bomb.y == ny) {
+                        hasBomb = true;
+                        break;
+                    }
+                }
+                if (hasBomb) continue;
+
+                // Ne pas aller vers une zone plus dangereuse
+                if (danger[nx][ny] > danger[bot.x][bot.y]) continue;
+
+                return new int[]{nx, ny};
+            }
         }
 
         return null;  // Aucun mouvement sûr trouvé
@@ -232,7 +301,6 @@ public class BotAI {
 
     // A* amélioré qui tient compte des murs destructibles comme un coût supplémentaire
     private PathResult findOptimalPath(BombermanGame.Player bot, BombermanGame.Player target, boolean[][] walls, boolean[][] destructibleBlocks, List<BombermanGame.Bomb> bombs, int[][] danger, int gridSize) {
-
         // Tableau pour marquer les nœuds visités
         boolean[][] closed = new boolean[gridSize][gridSize];
 
@@ -243,6 +311,9 @@ public class BotAI {
         // Map pour garder trace des meilleurs coûts
         Map<String, Integer> gScore = new HashMap<>();
         gScore.put(bot.x + "," + bot.y, 0);
+
+        // Vérifier si le bot est déjà dans une zone dangereuse
+        boolean inDangerZone = danger[bot.x][bot.y] > 0;
 
         while (!openSet.isEmpty()) {
             Node current = openSet.poll();
@@ -268,9 +339,6 @@ public class BotAI {
                 // Ignorer les murs indestructibles
                 if (walls[nx][ny]) continue;
 
-                // Ignorer les zones dangereuses sauf la cible
-                if (danger[nx][ny] > 0 && !(nx == target.x && ny == target.y)) continue;
-
                 // Ignorer les bombes sauf la cible
                 boolean hasBomb = false;
                 for (BombermanGame.Bomb bomb : bombs) {
@@ -284,10 +352,20 @@ public class BotAI {
                 // Si déjà visité
                 if (closed[nx][ny]) continue;
 
-                // Calculer le coût du mouvement: plus élevé pour traverser un mur destructible
+                // Si on est dans une zone dangereuse, ne pas aller vers une zone plus dangereuse
+                if (inDangerZone && danger[nx][ny] > danger[bot.x][bot.y]) continue;
+
+                // Calculer le coût du mouvement
                 int moveCost = 1;
+
+                // Coût plus élevé pour traverser un mur destructible
                 if (destructibleBlocks[nx][ny]) {
                     moveCost = 50; // Coût élevé pour casser un mur
+                }
+
+                // Coût beaucoup plus élevé pour les zones dangereuses
+                if (danger[nx][ny] > 0 && !(nx == target.x && ny == target.y)) {
+                    moveCost += 100 * danger[nx][ny]; // Coût très élevé pour éviter ces zones
                 }
 
                 int tentativeG = current.g + moveCost;
