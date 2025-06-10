@@ -1,4 +1,4 @@
-package bomberman;
+package com.bomberman;
 
 import javafx.application.Application;
 import javafx.geometry.Pos;

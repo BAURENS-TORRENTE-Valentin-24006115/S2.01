@@ -5,6 +5,6 @@ module bomberman {
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
 
-    opens bomberman to javafx.fxml;
-    exports bomberman;
+    opens com.bomberman to javafx.fxml;
+    exports com.bomberman;
 }

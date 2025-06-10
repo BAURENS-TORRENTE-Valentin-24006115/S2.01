@@ -1,4 +1,4 @@
-package bomberman;
+package com.bomberman;
 
 // Importation des bibliothèques JavaFX nécessaires
 import javafx.animation.ScaleTransition;
