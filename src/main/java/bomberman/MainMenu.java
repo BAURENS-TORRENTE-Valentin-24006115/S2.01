@@ -69,8 +69,12 @@ public class MainMenu extends Application {
         });
 
         optionsButton.setOnAction(e -> {
-            System.out.println("Options sélectionnées");
+            option optionsPage = new option(); // Assure-toi que la classe s'appelle bien "Options"
+            Stage optionsStage = new Stage();
+            optionsPage.start(optionsStage);
+            primaryStage.hide(); // Cache le menu principal
         });
+
 
         exitButton.setOnAction(e -> Platform.exit());
 
