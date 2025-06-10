@@ -59,7 +59,7 @@ public class option extends Application {
 
     private void createTitle() {
         try {
-            Image logo = new Image(getClass().getResourceAsStream("/images/bomberpx.png")); // Image du MainMenu
+            Image logo = new Image(getClass().getResourceAsStream("/images/Options.png")); // Image du MainMenu
             titleImage = new ImageView(logo);
 
             titleImage.setFitWidth(400);
