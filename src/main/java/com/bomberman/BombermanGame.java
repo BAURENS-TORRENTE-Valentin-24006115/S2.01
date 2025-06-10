@@ -55,6 +55,33 @@ public class BombermanGame implements Initializable {
     private boolean soloMode = false;
     private BotAI botAI = new BotAI(this);
 
+    /**
+     * Définit les noms des joueurs pour le mode multijoueur
+     * @param playerNames tableau contenant les noms des joueurs (jusqu'à 4)
+     */
+    public void setPlayerNames(String[] playerNames) {
+        // Sauvegarder les noms des joueurs
+        String[] savedNames = new String[4];
+        for (int i = 0; i < playerNames.length && i < 4; i++) {
+            if (playerNames[i] != null && !playerNames[i].trim().isEmpty()) {
+                savedNames[i] = playerNames[i].trim();
+            }
+        }
+
+        // Réinitialiser le jeu
+        restartGame();
+
+        // Restaurer les noms des joueurs après réinitialisation
+        for (int i = 0; i < savedNames.length; i++) {
+            if (savedNames[i] != null) {
+                players[i].name = savedNames[i];
+            }
+        }
+
+        // Mettre à jour l'interface
+        updateUI();
+    }
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         loadImages();
@@ -66,6 +93,14 @@ public class BombermanGame implements Initializable {
     public void enableSoloMode() {
         soloMode = true;
         restartGame();
+    }
+
+    public void setAlternativeStyle(boolean alternativeStyle) {
+        this.alternativeStyle = alternativeStyle;
+        // Recharger les images si nécessaire, que le jeu soit en mode solo ou non
+        if (!gameEnded) {
+            loadImages();
+        }
     }
 
     private void loadImages() {

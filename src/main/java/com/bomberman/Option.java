@@ -16,7 +16,7 @@ import javafx.stage.Stage;
  * Classe représentant la fenêtre des options du jeu Bomberman.
  * Permet notamment d’activer un style alternatif via une checkbox.
  */
-public class option extends Application {
+public class Option extends Application {
 
     // Dimensions de la fenêtre
     private static final int WINDOW_WIDTH = 800;
@@ -133,6 +133,7 @@ public class option extends Application {
         styleCheckBox.setOnAction(e -> {
             Settings.alternativeStyle = styleCheckBox.isSelected();
             System.out.println("alternativeStyle = " + Settings.alternativeStyle);
+
         });
 
         // Bouton "Retour" pour revenir au menu principal

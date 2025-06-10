@@ -1,7 +1,9 @@
 package com.bomberman;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
@@ -213,6 +215,9 @@ public class Multijoueur extends Application {
         confirmButton.setOnAction(e -> {
             Set<String> pseudos = new HashSet<>();
             boolean hasDuplicate = false;
+            // Liste pour stocker les pseudos non vides
+            String[] validPseudos = new String[4];
+            int validCount = 0;
 
             // Parcours des champs et vérification doublons
             for (TextField field : fields) {
@@ -220,9 +225,15 @@ public class Multijoueur extends Application {
                 if (!text.isEmpty()) {
                     if (pseudos.contains(text)) {
                         hasDuplicate = true;
-                        break;
+                        // Mettre en évidence le champ avec le pseudo dupliqué
+                        field.setStyle("-fx-border-color: red; -fx-border-width: 2px; -fx-font-size: 18px; -fx-padding: 5px;");
                     } else {
                         pseudos.add(text);
+                        field.setStyle("-fx-font-size: 18px; -fx-padding: 5px;");
+                        // Enregistrer le pseudo valide
+                        if (validCount < 4) {
+                            validPseudos[validCount++] = text;
+                        }
                     }
                 }
             }
@@ -231,11 +242,50 @@ public class Multijoueur extends Application {
                 // Affiche l'erreur en rouge
                 errorLabel.setText("Erreur : Vérifiez les pseudos !");
                 errorLabel.setVisible(true);
+            } else if (validCount < 2) {
+                // Au moins 2 joueurs sont nécessaires
+                errorLabel.setText("Il faut au moins 2 joueurs pour commencer !");
+                errorLabel.setVisible(true);
             } else {
-                // Pas d'erreur : cache le label d'erreur et continue
+                // Pas d'erreur : cache le label d'erreur et lance le jeu
                 errorLabel.setVisible(false);
                 System.out.println("Pseudos valides. Lancement du jeu...");
-                // TODO : Lancer la partie multijoueur ici
+                try {
+                    // Charger le fichier FXML
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/BombermanGame.fxml"));
+                    Parent root = loader.load();
+
+                    // Récupérer le contrôleur et configurer
+                    BombermanGame controller = loader.getController();
+                    // Appliquer le style alternatif si activé dans les options
+                    controller.setAlternativeStyle(Option.Settings.alternativeStyle);
+                    // Passer les noms des joueurs
+                    controller.setPlayerNames(validPseudos);
+
+                    // Créer une nouvelle scène
+                    Scene scene = new Scene(root, 800, 900);
+
+                    // Ajouter le CSS
+                    scene.getStylesheets().add(getClass().getResource("/bomberman.css").toExternalForm());
+
+                    // Configurer la nouvelle fenêtre
+                    Stage gameStage = new Stage();
+                    gameStage.setTitle("Super Bomberman - Mode Multijoueur");
+                    gameStage.setScene(scene);
+                    gameStage.setResizable(false);
+                    gameStage.centerOnScreen();
+
+                    // Donner le focus pour les contrôles clavier
+                    root.requestFocus();
+
+                    // Afficher le jeu et cacher le menu
+                    gameStage.show();
+                    stage.hide(); // Utilisez stage au lieu de primaryStage
+
+                    System.out.println("Mode multijoueur lancé");
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         });
 

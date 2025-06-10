@@ -3,6 +3,8 @@ package com.bomberman;
 // Importation des bibliothèques JavaFX nécessaires
 import javafx.animation.ScaleTransition;
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
@@ -94,13 +96,48 @@ public class MainMenu extends Application {
 
         // Action pour le bouton "SOLO"
         soloButton.setOnAction(e -> {
-            System.out.println("Mode solo sélectionné");
-            // Ajouter ici le démarrage du mode solo
+            try {
+                // Charger le fichier FXML
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/BombermanGame.fxml"));
+                Parent root = loader.load();
+
+                // Récupérer le contrôleur et activer le mode solo
+                BombermanGame controller = loader.getController();
+                // Appliquer le style alternatif si activé dans les options
+                controller.setAlternativeStyle(Option.Settings.alternativeStyle);
+                controller.enableSoloMode();
+
+
+                // Créer une nouvelle scène
+                Scene scene = new Scene(root, 800, 900);
+
+                // Ajouter le CSS
+                scene.getStylesheets().add(getClass().getResource("/bomberman.css").toExternalForm());
+
+                // Configurer la nouvelle fenêtre
+                Stage gameStage = new Stage();
+                gameStage.setTitle("Super Bomberman - Mode Solo");
+                gameStage.setScene(scene);
+                gameStage.setResizable(false);
+                gameStage.centerOnScreen();
+
+                // Donner le focus pour les contrôles clavier
+                root.requestFocus();
+
+                // Afficher le jeu et cacher le menu
+                gameStage.show();
+                primaryStage.hide();
+
+                System.out.println("Mode solo lancé");
+            } catch (Exception ex) {
+                System.err.println("Erreur lors du lancement du mode solo: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         });
 
         // Action pour le bouton "OPTIONS"
         optionsButton.setOnAction(e -> {
-            option optionsPage = new option(); // classe option (attention à la casse)
+            Option optionsPage = new Option(); // classe option (attention à la casse)
             Stage optionsStage = new Stage();
             optionsPage.start(optionsStage); // lance la scène des options
             primaryStage.hide(); // masque le menu principal
