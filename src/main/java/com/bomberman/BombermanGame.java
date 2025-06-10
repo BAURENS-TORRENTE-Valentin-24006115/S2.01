@@ -11,6 +11,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
+import com.bomberman.BotAI;
 
 import java.net.URL;
 import java.util.*;
@@ -51,6 +52,8 @@ public class BombermanGame implements Initializable {
     private Timeline gameLoop;
     private boolean gameEnded = false;
     private boolean alternativeStyle = false; // Pour basculer entre les styles
+    private boolean soloMode = true;
+    private BotAI botAI = new BotAI(this);
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -58,6 +61,11 @@ public class BombermanGame implements Initializable {
         initializeGame();
         setupGameLoop();
         updateUI();
+    }
+
+    public void enableSoloMode() {
+        soloMode = true;
+        restartGame();
     }
 
     private void loadImages() {
@@ -172,11 +180,14 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        // Initialiser les joueurs
         players[0] = new Player(1, 1, 0, "Joueur 1 (ZQSD + A)");
-        players[1] = new Player(GRID_SIZE - 2, 1, 1, "Joueur 2 (↑↓←→ + Espace)");
-        players[2] = new Player(1, GRID_SIZE - 2, 2, "Joueur 3 (YGHJ + U)");
-        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, 3, "Joueur 4 (OKLM + I)");
+        players[0].isBot = false;
+        players[1] = new Player(GRID_SIZE - 2, 1, 1, soloMode ? "Bot 2" : "Joueur 2 (↑↓←→ + Espace)");
+        players[1].isBot = soloMode;
+        players[2] = new Player(1, GRID_SIZE - 2, 2, soloMode ? "Bot 3" : "Joueur 3 (YGHJ + U)");
+        players[2].isBot = soloMode;
+        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, 3, soloMode ? "Bot 4" : "Joueur 4 (OKLM + I)");
+        players[3].isBot = soloMode;
 
         // Créer le terrain
         for (int x = 0; x < GRID_SIZE; x++) {
@@ -282,98 +293,99 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        // Joueur 2 (Flèches + Espace)
-        if (players[1].alive && currentTime - lastMoveTime.get(players[1]) > MOVEMENT_DELAY) {
-            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
-            boolean moved = false;
+        if (!soloMode) {
+            // Joueur 2 (Flèches + Espace)
+            if (players[1].alive && currentTime - lastMoveTime.get(players[1]) > MOVEMENT_DELAY) {
+                SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+                boolean moved = false;
 
-            if (pressedKeys.contains(KeyCode.UP)) {
-                direction = SpriteManager.Direction.UP;
-                moved = movePlayer(players[1], 0, -1);
-            }
-            else if (pressedKeys.contains(KeyCode.DOWN)) {
-                direction = SpriteManager.Direction.DOWN;
-                moved = movePlayer(players[1], 0, 1);
-            }
-            else if (pressedKeys.contains(KeyCode.LEFT)) {
-                direction = SpriteManager.Direction.LEFT;
-                moved = movePlayer(players[1], -1, 0);
-            }
-            else if (pressedKeys.contains(KeyCode.RIGHT)) {
-                direction = SpriteManager.Direction.RIGHT;
-                moved = movePlayer(players[1], 1, 0);
+                if (pressedKeys.contains(KeyCode.UP)) {
+                    direction = SpriteManager.Direction.UP;
+                    moved = movePlayer(players[1], 0, -1);
+                } else if (pressedKeys.contains(KeyCode.DOWN)) {
+                    direction = SpriteManager.Direction.DOWN;
+                    moved = movePlayer(players[1], 0, 1);
+                } else if (pressedKeys.contains(KeyCode.LEFT)) {
+                    direction = SpriteManager.Direction.LEFT;
+                    moved = movePlayer(players[1], -1, 0);
+                } else if (pressedKeys.contains(KeyCode.RIGHT)) {
+                    direction = SpriteManager.Direction.RIGHT;
+                    moved = movePlayer(players[1], 1, 0);
+                }
+
+                if (moved) {
+                    lastMoveTime.put(players[1], currentTime);
+                    players[1].animator.startDirectionAnimation(direction);
+                } else if (direction == SpriteManager.Direction.IDLE) {
+                    players[1].animator.idle();
+                }
             }
 
-            if (moved) {
-                lastMoveTime.put(players[1], currentTime);
-                players[1].animator.startDirectionAnimation(direction);
-            } else if (direction == SpriteManager.Direction.IDLE) {
-                players[1].animator.idle();
+            // Joueur 3 (YGHJ + U)
+            if (players[2].alive && currentTime - lastMoveTime.get(players[2]) > MOVEMENT_DELAY) {
+                SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+                boolean moved = false;
+
+                if (pressedKeys.contains(KeyCode.Y)) {
+                    direction = SpriteManager.Direction.UP;
+                    moved = movePlayer(players[2], 0, -1);
+                } else if (pressedKeys.contains(KeyCode.H)) {
+                    direction = SpriteManager.Direction.DOWN;
+                    moved = movePlayer(players[2], 0, 1);
+                } else if (pressedKeys.contains(KeyCode.G)) {
+                    direction = SpriteManager.Direction.LEFT;
+                    moved = movePlayer(players[2], -1, 0);
+                } else if (pressedKeys.contains(KeyCode.J)) {
+                    direction = SpriteManager.Direction.RIGHT;
+                    moved = movePlayer(players[2], 1, 0);
+                }
+
+                if (moved) {
+                    lastMoveTime.put(players[2], currentTime);
+                    players[2].animator.startDirectionAnimation(direction);
+                } else if (direction == SpriteManager.Direction.IDLE) {
+                    players[2].animator.idle();
+                }
+            }
+
+            // Joueur 4 (OKLM + I)
+            if (players[3].alive && currentTime - lastMoveTime.get(players[3]) > MOVEMENT_DELAY) {
+                SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
+                boolean moved = false;
+
+                if (pressedKeys.contains(KeyCode.O)) {
+                    direction = SpriteManager.Direction.UP;
+                    moved = movePlayer(players[3], 0, -1);
+                } else if (pressedKeys.contains(KeyCode.L)) {
+                    direction = SpriteManager.Direction.DOWN;
+                    moved = movePlayer(players[3], 0, 1);
+                } else if (pressedKeys.contains(KeyCode.K)) {
+                    direction = SpriteManager.Direction.LEFT;
+                    moved = movePlayer(players[3], -1, 0);
+                } else if (pressedKeys.contains(KeyCode.M)) {
+                    direction = SpriteManager.Direction.RIGHT;
+                    moved = movePlayer(players[3], 1, 0);
+                }
+
+                if (moved) {
+                    lastMoveTime.put(players[3], currentTime);
+                    players[3].animator.startDirectionAnimation(direction);
+                } else if (direction == SpriteManager.Direction.IDLE) {
+                    players[3].animator.idle();
+                }
             }
         }
 
-        // Joueur 3 (YGHJ + U)
-        if (players[2].alive && currentTime - lastMoveTime.get(players[2]) > MOVEMENT_DELAY) {
-            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
-            boolean moved = false;
-
-            if (pressedKeys.contains(KeyCode.Y)) {
-                direction = SpriteManager.Direction.UP;
-                moved = movePlayer(players[2], 0, -1);
-            }
-            else if (pressedKeys.contains(KeyCode.H)) {
-                direction = SpriteManager.Direction.DOWN;
-                moved = movePlayer(players[2], 0, 1);
-            }
-            else if (pressedKeys.contains(KeyCode.G)) {
-                direction = SpriteManager.Direction.LEFT;
-                moved = movePlayer(players[2], -1, 0);
-            }
-            else if (pressedKeys.contains(KeyCode.J)) {
-                direction = SpriteManager.Direction.RIGHT;
-                moved = movePlayer(players[2], 1, 0);
-            }
-
-            if (moved) {
-                lastMoveTime.put(players[2], currentTime);
-                players[2].animator.startDirectionAnimation(direction);
-            } else if (direction == SpriteManager.Direction.IDLE) {
-                players[2].animator.idle();
-            }
-        }
-
-        // Joueur 4 (OKLM + I)
-        if (players[3].alive && currentTime - lastMoveTime.get(players[3]) > MOVEMENT_DELAY) {
-            SpriteManager.Direction direction = SpriteManager.Direction.IDLE;
-            boolean moved = false;
-
-            if (pressedKeys.contains(KeyCode.O)) {
-                direction = SpriteManager.Direction.UP;
-                moved = movePlayer(players[3], 0, -1);
-            }
-            else if (pressedKeys.contains(KeyCode.L)) {
-                direction = SpriteManager.Direction.DOWN;
-                moved = movePlayer(players[3], 0, 1);
-            }
-            else if (pressedKeys.contains(KeyCode.K)) {
-                direction = SpriteManager.Direction.LEFT;
-                moved = movePlayer(players[3], -1, 0);
-            }
-            else if (pressedKeys.contains(KeyCode.M)) {
-                direction = SpriteManager.Direction.RIGHT;
-                moved = movePlayer(players[3], 1, 0);
-            }
-
-            if (moved) {
-                lastMoveTime.put(players[3], currentTime);
-                players[3].animator.startDirectionAnimation(direction);
-            } else if (direction == SpriteManager.Direction.IDLE) {
-                players[3].animator.idle();
+        if (soloMode) {
+            for (int i = 1; i < players.length; i++) {
+                if (players[i].isBot && players[i].alive) {
+                    botAI.updateBot(players[i], Arrays.asList(players), bombs, walls, destructibleBlocks);
+                }
             }
         }
     }
 
-    private boolean movePlayer(Player player, int dx, int dy) {
+    boolean movePlayer(Player player, int dx, int dy) {
         if (!player.alive) return false;
 
         int newX = player.x + dx;
@@ -604,7 +616,7 @@ public class BombermanGame implements Initializable {
         return true;
     }
 
-    private void placeBomb(Player player) {
+    void placeBomb(Player player) {
         if (!player.alive) return;
 
         // Vérifier s'il n'y a pas déjà une bombe à cette position
@@ -879,13 +891,14 @@ public class BombermanGame implements Initializable {
         return null;
     }
 
-    private static class Player {
+    public class Player {
         public PlayerAnimator animator;
         int x, y;
         boolean alive = true;
         ImageView visual;
         int playerIndex;
         String name;
+        boolean isBot = false;
 
         // Attributs pour les power-ups
         int bombLimit = 2;
@@ -995,7 +1008,7 @@ public class BombermanGame implements Initializable {
         }
     }
 
-    private static class Bomb {
+    public class Bomb {
         int x, y;
         ImageView visual;
         Player owner;
