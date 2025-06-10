@@ -50,6 +50,7 @@ public class BombermanGame implements Initializable {
 
     private Timeline gameLoop;
     private boolean gameEnded = false;
+    private boolean alternativeStyle = false; // Pour basculer entre les styles
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -61,20 +62,38 @@ public class BombermanGame implements Initializable {
 
     private void loadImages() {
         try {
-            // Charger les images des éléments du jeu
-            wallImage = new Image(getClass().getResourceAsStream("/images/wall.jpg"));
-            destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.jpg"));
-            bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
-            explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
+            if (alternativeStyle) {
+                // Charger les images des éléments du jeu
+                wallImage = new Image(getClass().getResourceAsStream("/images/wall.jpg"));
+                destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.jpg"));
+                bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
+                explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
 
-            // Charger les spritesheets individuelles pour chaque joueur
-            Image[] playerSpritesheets = new Image[4];
-            playerSpritesheets[0] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player1_spritesheet.png"));
-            playerSpritesheets[1] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player2_spritesheet.png"));
-            playerSpritesheets[2] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player3_spritesheet.png"));
-            playerSpritesheets[3] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player4_spritesheet.png"));
+                // Charger les spritesheets individuelles pour chaque joueur
+                Image[] playerSpritesheets = new Image[4];
+                playerSpritesheets[0] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player1_spritesheet.png"));
+                playerSpritesheets[1] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player2_spritesheet.png"));
+                playerSpritesheets[2] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player3_spritesheet.png"));
+                playerSpritesheets[3] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player4_spritesheet.png"));
 
-            spriteManager = new SpriteManager(playerSpritesheets);
+                spriteManager = new SpriteManager(playerSpritesheets);
+
+            } else {
+                // Charger les images des éléments du jeu
+                wallImage = new Image(getClass().getResourceAsStream("/images/wall.jpg"));
+                destructibleBlockImage = new Image(getClass().getResourceAsStream("/images/destructible_block.jpg"));
+                bombImage = new Image(getClass().getResourceAsStream("/images/bomb.png"));
+                explosionImage = new Image(getClass().getResourceAsStream("/images/explosion.png"));
+
+                // Charger les spritesheets individuelles pour chaque joueur
+                Image[] playerSpritesheets = new Image[4];
+                playerSpritesheets[0] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player1_spritesheet.png"));
+                playerSpritesheets[1] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player2_spritesheet.png"));
+                playerSpritesheets[2] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player3_spritesheet.png"));
+                playerSpritesheets[3] = new Image(getClass().getResourceAsStream("/images/players_spritesheets/player4_spritesheet.png"));
+
+                spriteManager = new SpriteManager(playerSpritesheets);
+            }
 
             // Vérifier si les images sont correctement chargées
             if (spriteManager.areSpritesSheetsLoaded()) {
@@ -92,10 +111,17 @@ public class BombermanGame implements Initializable {
 
         // Charger les power-ups
         try {
-            powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_bomb.png"));
-            powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_fire.png"));
-            powerUpImages[PowerUp.Type.KICK_BOMB.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_kick.png"));
-            powerUpImages[PowerUp.Type.INVINCIBLE.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_invincible.png"));
+            if (alternativeStyle) {
+                powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_bomb_alternative.png"));
+                powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_fire_alternative.png"));
+                powerUpImages[PowerUp.Type.KICK_BOMB.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_kick_alternative.png"));
+                powerUpImages[PowerUp.Type.INVINCIBLE.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_invincible_alternative.png"));
+            } else {
+                powerUpImages[PowerUp.Type.BOMB_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_bomb.png"));
+                powerUpImages[PowerUp.Type.FIRE_UP.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_fire.png"));
+                powerUpImages[PowerUp.Type.KICK_BOMB.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_kick.png"));
+                powerUpImages[PowerUp.Type.INVINCIBLE.ordinal()] = new Image(getClass().getResourceAsStream("/images/powerup_invincible.png"));
+            }
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement des images de power-ups: " + e.getMessage());
             createPlaceholderPowerUpImages();
