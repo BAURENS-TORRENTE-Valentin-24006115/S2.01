@@ -1,5 +1,6 @@
 package bomberman;
 
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -10,6 +11,7 @@ import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.application.Platform;
+import javafx.util.Duration;
 
 public class MainMenu extends Application {
 
@@ -39,16 +41,16 @@ public class MainMenu extends Application {
     private void initializeContainers() {
         root = new StackPane();
 
-        menuContainer = new VBox(30); // Augmentation de l'espacement à 30 pixels
+        menuContainer = new VBox(30);
         menuContainer.setAlignment(Pos.TOP_CENTER);
         menuContainer.setMaxWidth(300);
-        menuContainer.setTranslateY(100); // Augmentation de la translation verticale
+        menuContainer.setTranslateY(80);
     }
 
     private void createButtons(Stage primaryStage) {
-        VBox buttonBox = new VBox(20); // Espacement entre les boutons
+        VBox buttonBox = new VBox(20);
         buttonBox.setAlignment(Pos.CENTER);
-        buttonBox.setTranslateY(50); // Espace supplémentaire après le titre
+        buttonBox.setTranslateY(30);
 
         Button multiplayerButton = createMenuButton("MULTIJOUEUR");
         Button soloButton = createMenuButton("SOLO");
@@ -56,7 +58,10 @@ public class MainMenu extends Application {
         Button exitButton = createMenuButton("EXIT");
 
         multiplayerButton.setOnAction(e -> {
-            System.out.println("Mode multijoueur sélectionné");
+            Multijoueur playerSelection = new Multijoueur();
+            Stage playerSelectionStage = new Stage();
+            playerSelection.start(playerSelectionStage);
+            primaryStage.hide();
         });
 
         soloButton.setOnAction(e -> {
@@ -83,18 +88,35 @@ public class MainMenu extends Application {
                 "-fx-min-height: 40px; " +
                 "-fx-cursor: hand;";
 
+        String hoverStyle = "-fx-background-color: #008080; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 16px; " +
+                "-fx-font-weight: bold; " +
+                "-fx-min-width: 200px; " +
+                "-fx-min-height: 40px; " +
+                "-fx-cursor: hand;";
+
         button.setStyle(defaultStyle);
 
+        ScaleTransition scaleIn = new ScaleTransition(Duration.millis(200), button);
+        scaleIn.setToX(1.1);
+        scaleIn.setToY(1.1);
+        scaleIn.setAutoReverse(false);
+
+        ScaleTransition scaleOut = new ScaleTransition(Duration.millis(200), button);
+        scaleOut.setToX(1.0);
+        scaleOut.setToY(1.0);
+        scaleOut.setAutoReverse(false);
+
         button.setOnMouseEntered(e -> {
-            button.setStyle("-fx-background-color: #008080; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-size: 16px; " +
-                    "-fx-font-weight: bold; " +
-                    "-fx-min-width: 210px; " +
-                    "-fx-min-height: 50px; " +
-                    "-fx-cursor: hand;");
+            button.setStyle(hoverStyle);
+            scaleIn.playFromStart();
         });
-        button.setOnMouseExited(e -> button.setStyle(defaultStyle));
+
+        button.setOnMouseExited(e -> {
+            button.setStyle(defaultStyle);
+            scaleOut.playFromStart();
+        });
 
         return button;
     }
