@@ -229,7 +229,7 @@ public class Multijoueur extends Application {
 
             if (hasDuplicate) {
                 // Affiche l'erreur en rouge
-                errorLabel.setText("Erreur : Deux joueurs ont le même pseudo !");
+                errorLabel.setText("Erreur : Vérifiez les pseudos !");
                 errorLabel.setVisible(true);
             } else {
                 // Pas d'erreur : cache le label d'erreur et continue
