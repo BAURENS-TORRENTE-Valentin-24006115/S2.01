@@ -245,7 +245,6 @@ public class BombermanGame implements Initializable {
     private void gameUpdate() {
         if (!gameEnded) {
             handleInput();
-            updateBombs();
             checkWinCondition();
         }
     }
@@ -824,10 +823,6 @@ public class BombermanGame implements Initializable {
         }
     }
 
-    private void updateBombs() {
-        // Les bombes sont gérées par leurs propres timelines
-    }
-
     private void updateUI() {
         player1Label.setText(players[0].name + (players[0].alive ? " ✓" : " ✗"));
         player1Label.getStyleClass().removeAll("dead-player");
@@ -871,6 +866,7 @@ public class BombermanGame implements Initializable {
         winnerLabel.setText("");
         winnerLabel.getStyleClass().removeAll("winner-text");
         initializeGame();
+        setupGameLoop();
         updateUI();
     }
 
