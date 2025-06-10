@@ -38,6 +38,9 @@ public class BombermanGame implements Initializable {
     // Système de sprites
     private SpriteManager spriteManager;
 
+    // Variable pour la musique
+    private AudioManager audioManager;
+
     private Player[] players = new Player[4];
     private boolean[][] walls;
     private boolean[][] destructibleBlocks;
@@ -58,6 +61,10 @@ public class BombermanGame implements Initializable {
         initializeGame();
         setupGameLoop();
         updateUI();
+        audioManager = new AudioManager();
+
+        // Démarrer la musique de fond
+        audioManager.playMusic("background_music.mp3");
     }
 
     private void loadImages() {
@@ -245,7 +252,6 @@ public class BombermanGame implements Initializable {
     private void gameUpdate() {
         if (!gameEnded) {
             handleInput();
-            updateBombs();
             checkWinCondition();
         }
     }
@@ -434,6 +440,8 @@ public class BombermanGame implements Initializable {
                 // Collecter le power-up
                 StackPane cell = (StackPane) getNodeFromGridPane(x, y);
                 cell.getChildren().remove(powerUp.getVisual());
+                // Jouer l'effet sonore de collecte de power-up
+                audioManager.playEffect("pickup.mp3");
 
                 // Appliquer l'effet
                 player.applyPowerUp(powerUp.getType());
@@ -647,6 +655,9 @@ public class BombermanGame implements Initializable {
         // Exploser après 3 secondes
         Timeline bombTimer = new Timeline(new KeyFrame(Duration.seconds(3), e -> explodeBomb(newBomb)));
         bombTimer.play();
+
+        // Jouer l'effet sonore de la bombe
+        audioManager.playEffect("place_bomb.mp3");
     }
 
     private void explodeBomb(Bomb bomb) {
@@ -693,6 +704,9 @@ public class BombermanGame implements Initializable {
                     break;
                 }
             }
+
+            // Jouer le son d'explosion
+            audioManager.playEffect("explosion.mp3");
         }
 
         // Afficher les explosions
@@ -789,6 +803,9 @@ public class BombermanGame implements Initializable {
         // Jouer l'animation de mort
         player.animator.playDeathAnimation();
 
+        // Jouer le son de mort
+        audioManager.playEffect("death.mp3");
+
         updateUI();
     }
 
@@ -806,6 +823,16 @@ public class BombermanGame implements Initializable {
                 winnerLabel.setText(winner.name + " GAGNE!");
                 winnerLabel.getStyleClass().add("winner-text");
 
+                // Jouer le son de victoire
+                audioManager.stopMusic();
+                audioManager.playEffect("win.mp3");
+
+                // Jouer la musique de victoire après un délai
+                Timeline victoryMusic = new Timeline(new KeyFrame(Duration.seconds(1), e -> {
+                    audioManager.playMusic("victory_music.mp3");
+                }));
+                victoryMusic.play();
+
                 // Animation de célébration pour le gagnant
                 winner.animator.celebrate();
 
@@ -822,10 +849,6 @@ public class BombermanGame implements Initializable {
                 winnerLabel.setText("MATCH NUL!");
             }
         }
-    }
-
-    private void updateBombs() {
-        // Les bombes sont gérées par leurs propres timelines
     }
 
     private void updateUI() {
@@ -933,8 +956,6 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        // Dans la classe Player du BombermanGame.java
-        // Dans la classe Player
         public void useCustomAnimation(String name) {
             switch (name) {
                 case "idle":
