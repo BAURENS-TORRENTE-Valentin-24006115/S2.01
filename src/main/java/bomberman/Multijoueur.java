@@ -31,17 +31,17 @@ public class Multijoueur extends Application {
     private ImageView backgroundImage;
     private ImageView titleImage;
     private Label errorLabel;
-    private Stage stage;
+    private Stage stage;  // On garde la référence du stage ici
 
     @Override
     public void start(Stage stage) {
-        this.stage = stage;  // Garde la référence pour changer de scène
+        this.stage = stage; // garde le stage pour navigation
 
         initializeContainers();
         setBackground();
         createTitle();
         setupContent();
-        setupRetourButton();  // Ajout bouton retour
+        addRetourButton();
 
         Scene scene = new Scene(root, WINDOW_WIDTH, WINDOW_HEIGHT);
         stage.setTitle("Sélection des Joueurs");
@@ -213,45 +213,27 @@ public class Multijoueur extends Application {
         contentContainer.getChildren().add(boxWrapper);
     }
 
-    // Méthode pour créer le bouton retour en bas à gauche
-    private void setupRetourButton() {
-        Button backButton = new Button("← Retour");
-        backButton.setStyle(
+    private void addRetourButton() {
+        Button retourBtn = new Button("<- Retour");
+        retourBtn.setStyle(
                 "-fx-background-color: transparent; " +
                         "-fx-text-fill: white; " +
                         "-fx-font-size: 16px; " +
                         "-fx-font-weight: bold;"
         );
-        backButton.setOnMouseEntered(e -> backButton.setStyle(
-                "-fx-background-color: rgba(255,255,255,0.2);" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;"
-        ));
-        backButton.setOnMouseExited(e -> backButton.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-text-fill: white;" +
-                        "-fx-font-size: 16px;" +
-                        "-fx-font-weight: bold;"
-        ));
+        // Positionner le bouton en bas à gauche
+        StackPane.setAlignment(retourBtn, Pos.BOTTOM_LEFT);
+        StackPane.setMargin(retourBtn, new Insets(10));
 
-        backButton.setOnAction(e -> {
-            // Retour au main menu
-            MainMenu mainMenu = new MainMenu();
+        retourBtn.setOnAction(e -> {
             try {
+                MainMenu mainMenu = new MainMenu();
                 mainMenu.start(stage);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         });
 
-        // Place le bouton dans un conteneur HBox aligné à gauche en bas
-        HBox backContainer = new HBox(backButton);
-        backContainer.setAlignment(Pos.BOTTOM_LEFT);
-        backContainer.setPadding(new Insets(10));
-        backContainer.setMinWidth(WINDOW_WIDTH);
-
-        // Ajoute le bouton retour en dernier pour qu'il soit au-dessus
-        root.getChildren().add(backContainer);
+        root.getChildren().add(retourBtn);
     }
 }
