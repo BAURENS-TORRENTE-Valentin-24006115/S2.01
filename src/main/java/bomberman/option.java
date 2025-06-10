@@ -191,7 +191,7 @@ public class option extends Application {
      * Classe interne statique pour gérer les paramètres globaux des options.
      */
     public static class Settings {
-        public static boolean alternativeStyle = false; // option style alternatif
+        public static boolean alternativeStyle = false; // option style alternatif.
     }
 
     /**

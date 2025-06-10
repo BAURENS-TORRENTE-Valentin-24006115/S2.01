@@ -212,7 +212,7 @@ public class MainMenu extends Application {
     /**
      * Méthode main pour lancer l'application JavaFX.
      *
-     * @param args arguments de la ligne de commande (non utilisés ici)
+     * @param args arguments de la ligne de commande (non utilisés ici).
      */
     public static void main(String[] args) {
         launch(args);

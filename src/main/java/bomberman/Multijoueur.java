@@ -278,7 +278,7 @@ public class Multijoueur extends Application {
         StackPane.setAlignment(retourBtn, Pos.BOTTOM_LEFT);
         StackPane.setMargin(retourBtn, new Insets(10));
 
-        // Action du bouton retour : revient au menu principal
+        // Action du bouton retour : revient au menu principal.
         retourBtn.setOnAction(e -> {
             try {
                 MainMenu mainMenu = new MainMenu();
