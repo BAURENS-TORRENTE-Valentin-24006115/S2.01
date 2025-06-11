@@ -117,8 +117,4 @@ public class AudioManager {
             musicPlayer.play();
         }
     }
-
-    public void toggleEffects() {
-        effectsEnabled = !effectsEnabled;
-    }
 }

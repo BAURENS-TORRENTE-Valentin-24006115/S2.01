@@ -8,8 +8,10 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 import com.bomberman.BotAI;
 
@@ -99,8 +101,22 @@ public class BombermanGame implements Initializable {
     }
 
     public void enableSoloMode() {
-        soloMode = true;
-        restartGame();
+        this.soloMode = true;
+
+        // Mettre à jour le titre
+        Label title = (Label) ((VBox) ((BorderPane) gameGrid.getParent().getParent()).getTop()).getChildren().get(0);
+        title.setText("SUPER BOMBERMAN - MODE SOLO");
+
+        // Initialiser l'IA avec la difficulté choisie dans les options
+        botAI = new BotAI(this);
+        botAI.setAiSpeed(Option.Settings.aiDifficulty);
+
+        // Marquer les joueurs 2-4 comme bots
+        for (int i = 1; i < players.length; i++) {
+            if (players[i] != null) {
+                players[i].isBot = true;
+            }
+        }
     }
 
     public void setAlternativeStyle(boolean alternativeStyle) {

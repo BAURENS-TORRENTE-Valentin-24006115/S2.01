@@ -4,8 +4,7 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
@@ -18,6 +17,8 @@ import javafx.stage.Stage;
  */
 public class Option extends Application {
 
+    private Stage primaryStage;
+
     // Dimensions de la fenêtre
     private static final int WINDOW_WIDTH = 800;
     private static final int WINDOW_HEIGHT = 600;
@@ -29,6 +30,12 @@ public class Option extends Application {
     // Images pour le fond et le titre
     private ImageView backgroundImage;
     private ImageView titleImage;
+
+    public static class Settings {
+        public static boolean alternativeStyle = false; // option style alternatif.
+        public static boolean soundEnabled = true; // option son activé par défaut
+        public static int aiDifficulty = BotAI.AI_SPEED_NORMAL; // difficulté par défaut
+    }
 
     /**
      * Point d'entrée JavaFX qui initialise et affiche la fenêtre des options.
@@ -106,37 +113,42 @@ public class Option extends Application {
      *
      * @param stage la fenêtre sur laquelle les actions pourront agir (retour au menu principal)
      */
+
     private void setupContent(Stage stage) {
         VBox centerBox = new VBox();
         centerBox.setAlignment(Pos.CENTER);
-        centerBox.setPrefHeight(WINDOW_HEIGHT - 300); // hauteur ajustée pour tenir compte du titre
+        centerBox.setPrefHeight(WINDOW_HEIGHT - 300);
         centerBox.setMinHeight(200);
 
-        VBox optionBox = new VBox(20); // espacement vertical entre éléments
+        VBox optionBox = new VBox(20);
         optionBox.setAlignment(Pos.CENTER);
         optionBox.setPadding(new Insets(30));
         optionBox.setMaxWidth(300);
 
-        // Fond avec couleur et coins arrondis pour la boîte d'options
         optionBox.setBackground(new Background(new BackgroundFill(
                 Color.valueOf("#00A0A0"),
                 new CornerRadii(10),
                 Insets.EMPTY
         )));
 
-        // Checkbox pour activer/désactiver le style alternatif
         CheckBox styleCheckBox = new CheckBox("Activer style alternatif");
-        styleCheckBox.setSelected(Settings.alternativeStyle); // état initial selon Settings
+        styleCheckBox.setSelected(Settings.alternativeStyle);
         styleCheckBox.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
 
-        // Action lors du changement d’état de la checkbox
         styleCheckBox.setOnAction(e -> {
             Settings.alternativeStyle = styleCheckBox.isSelected();
             System.out.println("alternativeStyle = " + Settings.alternativeStyle);
-
         });
 
-        // Bouton "Retour" pour revenir au menu principal
+        CheckBox soundCheckBox = new CheckBox("Activer la musique");
+        soundCheckBox.setSelected(Settings.soundEnabled);
+        soundCheckBox.setStyle("-fx-font-size: 18px; -fx-text-fill: white;");
+
+        soundCheckBox.setOnAction(e -> {
+            Settings.soundEnabled = soundCheckBox.isSelected();
+            System.out.println("soundEnabled = " + Settings.soundEnabled);
+        });
+
         Button backButton = new Button("Retour");
         backButton.setStyle(
                 "-fx-background-color: #008080; " +
@@ -148,7 +160,6 @@ public class Option extends Application {
                         "-fx-cursor: hand;"
         );
 
-        // Style au survol
         backButton.setOnMouseEntered(e -> backButton.setStyle(
                 "-fx-background-color: #006666; " +
                         "-fx-text-fill: white; " +
@@ -159,7 +170,6 @@ public class Option extends Application {
                         "-fx-cursor: hand;"
         ));
 
-        // Retour au style par défaut quand la souris quitte
         backButton.setOnMouseExited(e -> backButton.setStyle(
                 "-fx-background-color: #008080; " +
                         "-fx-text-fill: white; " +
@@ -170,7 +180,6 @@ public class Option extends Application {
                         "-fx-cursor: hand;"
         ));
 
-        // Action du bouton retour : revenir au menu principal
         backButton.setOnAction(e -> {
             MainMenu mainMenu = new MainMenu();
             try {
@@ -180,19 +189,51 @@ public class Option extends Application {
             }
         });
 
-        // Ajout de la checkbox et du bouton retour dans la boîte d’options
-        optionBox.getChildren().addAll(styleCheckBox, backButton);
+        // Ajouter la section de difficulté créée par la méthode
+        VBox difficultyBox = createDifficultyOption();
+
+        // Ajout de tous les éléments dans la boîte d'options
+        optionBox.getChildren().addAll(styleCheckBox, soundCheckBox, difficultyBox, backButton);
         centerBox.getChildren().add(optionBox);
 
-        // Ajout du contenu principal dans le conteneur principal
         mainContainer.getChildren().add(centerBox);
     }
 
     /**
-     * Classe interne statique pour gérer les paramètres globaux des options.
+     * Crée les options de difficulté pour l'IA
+     *
+     * @return un conteneur avec les options de difficulté
      */
-    public static class Settings {
-        public static boolean alternativeStyle = false; // option style alternatif.
+    private VBox createDifficultyOption() {
+        Label difficultyLabel = new Label("Difficulté des IA");
+        difficultyLabel.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: white;");
+
+        // Groupe pour les boutons radio de difficulté
+        ToggleGroup difficultyGroup = new ToggleGroup();
+
+        RadioButton easyDifficulty = new RadioButton("Baby Mode");
+        easyDifficulty.setToggleGroup(difficultyGroup);
+        easyDifficulty.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        easyDifficulty.setSelected(Settings.aiDifficulty == BotAI.AI_SPEED_BABY);
+
+        RadioButton normalDifficulty = new RadioButton("Normal");
+        normalDifficulty.setToggleGroup(difficultyGroup);
+        normalDifficulty.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        normalDifficulty.setSelected(Settings.aiDifficulty == BotAI.AI_SPEED_NORMAL);
+
+        RadioButton hardDifficulty = new RadioButton("Real Man Mode");
+        hardDifficulty.setToggleGroup(difficultyGroup);
+        hardDifficulty.setStyle("-fx-text-fill: white; -fx-font-size: 14px;");
+        hardDifficulty.setSelected(Settings.aiDifficulty == BotAI.AI_SPEED_REALMAN);
+
+        // Écouter les changements
+        easyDifficulty.setOnAction(e -> Settings.aiDifficulty = BotAI.AI_SPEED_BABY);
+        normalDifficulty.setOnAction(e -> Settings.aiDifficulty = BotAI.AI_SPEED_NORMAL);
+        hardDifficulty.setOnAction(e -> Settings.aiDifficulty = BotAI.AI_SPEED_REALMAN);
+
+        VBox difficultyBox = new VBox(10, difficultyLabel, easyDifficulty, normalDifficulty, hardDifficulty);
+        difficultyBox.setStyle("-fx-padding: 10; -fx-background-color: rgba(0,0,0,0.2); -fx-background-radius: 5;");
+        return difficultyBox;
     }
 
     /**

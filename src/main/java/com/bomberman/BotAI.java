@@ -8,8 +8,28 @@ public class BotAI {
     private BombermanGame game;
     private Map<BombermanGame.Player, Long> lastBotMoveTime = new HashMap<>();
 
+    // Définit la vitesse de déplacement par défaut des IAs
+    private int aiSpeed = 200; // 0.2s en millisecondes
+
+    // Constantes pour les niveaux de difficulté
+    public static final int AI_SPEED_BABY = 300;
+    public static final int AI_SPEED_NORMAL = 200;
+    public static final int AI_SPEED_REALMAN = 0; // Fais bouger l'IA très rapidement
+
     public BotAI(BombermanGame game) {
         this.game = game;
+    }
+
+    public int getAiSpeed() {
+        return aiSpeed;
+    }
+
+    public void setAiSpeed(int aiSpeed) {
+        if (aiSpeed > 0) {
+            this.aiSpeed = aiSpeed;
+        } else {
+            throw new IllegalArgumentException("AI speed must be superior to 0");
+        }
     }
 
     private static class Node {
