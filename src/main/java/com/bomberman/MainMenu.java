@@ -100,43 +100,10 @@ public class MainMenu extends Application {
 
         // Action pour le bouton "SOLO"
         soloButton.setOnAction(e -> {
-            try {
-                // Charger le fichier FXML
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/BombermanGame.fxml"));
-                Parent root = loader.load();
-
-                // Récupérer le contrôleur et activer le mode solo
-                BombermanGame controller = loader.getController();
-                // Appliquer le style alternatif si activé dans les options
-                controller.setAlternativeStyle(Option.Settings.alternativeStyle);
-                controller.enableSoloMode();
-
-
-                // Créer une nouvelle scène
-                Scene scene = new Scene(root, 800, 900);
-
-                // Ajouter le CSS
-                scene.getStylesheets().add(getClass().getResource("/bomberman.css").toExternalForm());
-
-                // Configurer la nouvelle fenêtre
-                Stage gameStage = new Stage();
-                gameStage.setTitle("Super Bomberman - Mode Solo");
-                gameStage.setScene(scene);
-                gameStage.setResizable(false);
-                gameStage.centerOnScreen();
-
-                // Donner le focus pour les contrôles clavier
-                root.requestFocus();
-
-                // Afficher le jeu et cacher le menu
-                gameStage.show();
-                primaryStage.hide();
-
-                System.out.println("Mode solo lancé");
-            } catch (Exception ex) {
-                System.err.println("Erreur lors du lancement du mode solo: " + ex.getMessage());
-                ex.printStackTrace();
-            }
+            Solo soloGame = new Solo();
+            Stage soloGameStage = new Stage();
+            soloGame.start(soloGameStage); // lance la scène solo
+            primaryStage.hide(); // masque le menu principal
         });
 
         // Action pour le bouton "OPTIONS"

@@ -15,6 +15,8 @@ public class BotAI {
 
     private BombermanGame game;
     private Map<BombermanGame.Player, Long> lastBotMoveTime = new HashMap<>();
+    private int botMoveDelay = 200; // Délai en ms (modifiable)
+
 
     /**
      * Constructeur de l'IA du bot.
@@ -59,6 +61,11 @@ public class BotAI {
         }
     }
 
+    /** Permet de modifier la vitesse du bot (délai en ms entre chaque action) */
+    public void setBotMoveDelay(int delayMs) {
+        this.botMoveDelay = delayMs;
+    }
+
     /**
      * Met à jour le bot en fonction de l'état du jeu.
      * Gère les mouvements, la pose de bombes et l'évitement des dangers.
@@ -77,7 +84,7 @@ public class BotAI {
             lastBotMoveTime.put(bot, 0L);
         }
 
-        if (currentTime - lastBotMoveTime.get(bot) <= 200) { // 200ms = 0.2s
+        if (currentTime - lastBotMoveTime.get(bot) <= botMoveDelay) { // 200ms = 0.2s
             return; // Ne pas bouger si le délai n'est pas écoulé
         }
 

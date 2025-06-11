@@ -137,6 +137,12 @@ public class BombermanGame implements Initializable {
         restartGame();
     }
 
+    public void setBotMoveDelay(int delayMs) {
+        if (botAI != null) {
+            botAI.setBotMoveDelay(delayMs);
+        }
+    }
+
     public void setAlternativeStyle(boolean alternativeStyle) {
         this.alternativeStyle = alternativeStyle;
         // Recharger les images si nécessaire, que le jeu soit en mode solo ou non
