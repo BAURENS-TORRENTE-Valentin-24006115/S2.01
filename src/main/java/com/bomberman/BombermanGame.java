@@ -718,6 +718,9 @@ public class BombermanGame implements Initializable {
         // Retirer la bombe de la liste
         bombs.remove(bomb);
 
+        // Jouer le son d'explosion
+        audioManager.playEffect("explosion.mp3");
+
         // Retirer la bombe visuellement
         StackPane bombCell = (StackPane) getNodeFromGridPane(bomb.x, bomb.y);
         bombCell.getChildren().remove(bomb.visual);
@@ -759,9 +762,6 @@ public class BombermanGame implements Initializable {
                     break;
                 }
             }
-
-            // Jouer le son d'explosion
-            audioManager.playEffect("explosion.mp3");
         }
 
         // Afficher les explosions
@@ -979,6 +979,12 @@ public class BombermanGame implements Initializable {
         // Arrêter toutes les animations en cours
         if (gameLoop != null) {
             gameLoop.stop();
+        }
+
+        // Arrêter la musique de victoire et redémarrer la musique de fond
+        if (audioManager != null) {
+            audioManager.stopMusic();
+            audioManager.playMusic("background_music.mp3");
         }
 
         // Nettoyer les anciennes ressources
