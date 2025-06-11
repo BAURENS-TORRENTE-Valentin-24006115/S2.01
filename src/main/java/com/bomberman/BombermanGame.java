@@ -800,11 +800,11 @@ public class BombermanGame implements Initializable {
 
         player.alive = false;
 
+        // Jouer l'effet sonore de mort
+        audioManager.playEffect("death.mp3");
+
         // Jouer l'animation de mort
         player.animator.playDeathAnimation();
-
-        // Jouer le son de mort
-        audioManager.playEffect("death.mp3");
 
         updateUI();
     }
