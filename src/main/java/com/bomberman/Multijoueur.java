@@ -281,6 +281,10 @@ public class Multijoueur extends Application {
                     // Donner le focus pour les contrôles clavier
                     root.requestFocus();
 
+                    gameStage.setOnHidden(ev -> {
+                        stage.show(); // Réaffiche le menu multijoueur quand la partie se ferme
+                    });
+
                     // Afficher le jeu et cacher le menu
                     gameStage.show();
                     stage.hide(); // Utilisez stage au lieu de primaryStage

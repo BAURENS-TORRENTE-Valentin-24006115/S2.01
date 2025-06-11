@@ -366,8 +366,14 @@ public class Solo extends Application {
                 gameStage.setResizable(false);
                 gameStage.centerOnScreen();
                 root.requestFocus();
+
+                gameStage.setOnHidden(ev -> {
+                    stage.show();
+                });
+
                 gameStage.show();
                 stage.hide();
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
