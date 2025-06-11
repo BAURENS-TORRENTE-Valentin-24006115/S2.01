@@ -7,7 +7,6 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<?import javafx.scene.layout.StackPane?>
 <BorderPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.bomberman.BombermanGame" onKeyPressed="#handleKeyPressed" onKeyReleased="#handleKeyReleased" focusTraversable="true">
     <top>
         <VBox alignment="CENTER" spacing="10.0" styleClass="header">
@@ -34,9 +33,7 @@
                 <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
             </padding>
             <children>
-                <StackPane fx:id="rootPane">
                 <GridPane fx:id="gameGrid" hgap="2.0" styleClass="game-grid" vgap="2.0" />
-                </StackPane>
                 <VBox alignment="CENTER" spacing="5.0" styleClass="controls">
                     <children>
                         <Label styleClass="control-title" text="CONTRÔLES:" />
