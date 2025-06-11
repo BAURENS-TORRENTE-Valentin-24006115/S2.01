@@ -396,7 +396,7 @@ public class BotAI {
     // Vérifier si deux positions sont adjacentes
     private boolean isAdjacent(int x1, int y1, int x2, int y2) {
         // Vérifie si les positions sont adjacentes (distance de Manhattan = 1)
-        return Math.abs(x1 - x2) + Math.abs(y1 - y2) <= 2;
+        return Math.abs(x1 - x2) + Math.abs(y1 - y2) <= 1;
     }
 
     // Distance de Manhattan

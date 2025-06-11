@@ -24,6 +24,7 @@ public class BombermanGame implements Initializable {
     @FXML private Label player3Label;
     @FXML private Label player4Label;
     @FXML private Label winnerLabel;
+    @FXML private StackPane rootPane;
 
     private static final int GRID_SIZE = 15;
     private static final int CELL_SIZE = 40;
@@ -492,43 +493,12 @@ public class BombermanGame implements Initializable {
                 // Appliquer l'effet
                 player.applyPowerUp(powerUp.getType());
 
-                // Afficher un effet visuel temporaire
-                showPowerUpEffect(player, powerUp.getType());
-
                 // Retirer de la liste
                 powerUp.collect();
                 iterator.remove();
                 break;
             }
         }
-    }
-
-    private void showPowerUpEffect(Player player, PowerUp.Type type) {
-        // Créer un texte flottant montrant le type de power-up collecté
-        Label effectLabel = new Label();
-
-        switch (type) {
-            case BOMB_UP: effectLabel.setText("+1 BOMB"); break;
-            case FIRE_UP: effectLabel.setText("+1 BLAST POWER"); break;
-            case KICK_BOMB: effectLabel.setText("BOMB KICKER"); break;
-            case INVINCIBLE: effectLabel.setText("INVINCIBILITY"); break;
-        }
-
-        effectLabel.getStyleClass().add("power-up-text");
-        StackPane cell = (StackPane) getNodeFromGridPane(player.x, player.y);
-        cell.getChildren().add(effectLabel);
-
-        // Animation de texte flottant puis disparaissant
-        TranslateTransition floatUp = new TranslateTransition(Duration.millis(1000), effectLabel);
-        floatUp.setByY(-40);
-        FadeTransition fadeOut = new FadeTransition(Duration.millis(800), effectLabel);
-        fadeOut.setFromValue(1.0);
-        fadeOut.setToValue(0.0);
-        fadeOut.setDelay(Duration.millis(200));
-
-        ParallelTransition parallel = new ParallelTransition(floatUp, fadeOut);
-        parallel.setOnFinished(e -> cell.getChildren().remove(effectLabel));
-        parallel.play();
     }
 
     private boolean canMoveTo(int x, int y) {
@@ -618,7 +588,7 @@ public class BombermanGame implements Initializable {
             final int targetY = path.get(i)[1];
 
             // Créer une pause de 0.25 seconde
-            PauseTransition pause = new PauseTransition(Duration.seconds(0.25));
+            PauseTransition pause = new PauseTransition(Duration.seconds(0.10));
 
             // Action après la pause
             pause.setOnFinished(e -> {
@@ -1006,7 +976,9 @@ public class BombermanGame implements Initializable {
 
     private javafx.scene.Node getNodeFromGridPane(int col, int row) {
         for (javafx.scene.Node node : gameGrid.getChildren()) {
-            if (GridPane.getColumnIndex(node) == col && GridPane.getRowIndex(node) == row) {
+            Integer column = GridPane.getColumnIndex(node);
+            Integer rowIdx = GridPane.getRowIndex(node);
+            if ((column == null ? 0 : column) == col && (rowIdx == null ? 0 : rowIdx) == row) {
                 return node;
             }
         }
