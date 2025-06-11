@@ -146,11 +146,11 @@ public class Solo extends Application {
         HBox labels = new HBox(10);
         labels.setAlignment(Pos.CENTER);
         labels.getChildren().addAll(
-                createDifficultyRangeLabel("Impossible\n50-0"),
-                createDifficultyRangeLabel("Fou\n150-50"),
-                createDifficultyRangeLabel("Difficile\n250-150"),
-                createDifficultyRangeLabel("Moyen\n350-250"),
-                createDifficultyRangeLabel("Facile\n500-350")
+                createDifficultyRangeLabel("Impossible\n0-50"),
+                createDifficultyRangeLabel("Fou\n50-150"),
+                createDifficultyRangeLabel("Difficile\n150-250"),
+                createDifficultyRangeLabel("Moyen\n250-350"),
+                createDifficultyRangeLabel("Facile\n350-500")
         );
 
         // Bouton lancer
