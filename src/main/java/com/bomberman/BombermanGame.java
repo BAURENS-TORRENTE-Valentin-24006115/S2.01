@@ -24,7 +24,6 @@ public class BombermanGame implements Initializable {
     @FXML private Label player3Label;
     @FXML private Label player4Label;
     @FXML private Label winnerLabel;
-    @FXML private StackPane rootPane;
 
     private static final int GRID_SIZE = 15;
     private static final int CELL_SIZE = 40;
@@ -35,7 +34,6 @@ public class BombermanGame implements Initializable {
     private Image destructibleBlockImage;
     private Image bombImage;
     private Image explosionImage;
-    private Image spritesheetImage;
 
     // Système de sprites
     private SpriteManager spriteManager;
