@@ -38,6 +38,7 @@ public class BombermanGame implements Initializable {
 
     // Système de sprites
     private SpriteManager spriteManager;
+    private StatsManager statsManager;
 
     private Player[] players = new Player[4];
     private boolean[][] walls;
@@ -84,6 +85,7 @@ public class BombermanGame implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        statsManager = new StatsManager();
         loadImages();
         initializeGame();
         setupGameLoop();
@@ -212,13 +214,13 @@ public class BombermanGame implements Initializable {
             }
         }
 
-        players[0] = new Player(1, 1, 0, "Joueur 1 (ZQSD + A)");
+        players[0] = new Player(1, 1, 0, "Joueur 1");
         players[0].isBot = false;
-        players[1] = new Player(GRID_SIZE - 2, 1, 1, soloMode ? "Bot 2" : "Joueur 2 (↑↓←→ + Espace)");
+        players[1] = new Player(GRID_SIZE - 2, 1, 1,"Bot 2");
         players[1].isBot = soloMode;
-        players[2] = new Player(1, GRID_SIZE - 2, 2, soloMode ? "Bot 3" : "Joueur 3 (YGHJ + U)");
+        players[2] = new Player(1, GRID_SIZE - 2, 2,"Bot 3");
         players[2].isBot = soloMode;
-        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, 3, soloMode ? "Bot 4" : "Joueur 4 (OKLM + I)");
+        players[3] = new Player(GRID_SIZE - 2, GRID_SIZE - 2, 3, "Bot 4");
         players[3].isBot = soloMode;
 
         // Créer le terrain
@@ -854,8 +856,27 @@ public class BombermanGame implements Initializable {
             gameLoop.stop();
 
             Player winner = Arrays.stream(players).filter(p -> p.alive).findFirst().orElse(null);
+
+            // Mettre à jour les statistiques des joueurs
+            for (Player player : players) {
+                if (player != null && !player.isBot) {
+                    if (player == winner) {
+                        // Victoire pour le gagnant
+                        statsManager.recordVictory(player.name);
+                    } else {
+                        // Défaite pour les autres
+                        statsManager.recordDefeat(player.name);
+                    }
+                }
+            }
+
             if (winner != null) {
-                winnerLabel.setText(winner.name + " GAGNE!");
+                // Récupérer les stats du gagnant
+                PlayerStats winnerStats = statsManager.getPlayerStats(winner.name);
+
+                // Afficher un message avec les statistiques
+                winnerLabel.setText(winner.name + " GAGNE! (V: " + winnerStats.getVictories()
+                        + " - D: " + winnerStats.getDefeats() + ")");
                 winnerLabel.getStyleClass().add("winner-text");
 
                 // Animation de célébration pour le gagnant
@@ -919,6 +940,14 @@ public class BombermanGame implements Initializable {
         winnerLabel.setText("");
         winnerLabel.getStyleClass().removeAll("winner-text");
 
+        // Sauvegarder les noms des joueurs avant la réinitialisation
+        String[] savedNames = new String[4];
+        for (int i = 0; i < 4; i++) {
+            if (players[i] != null) {
+                savedNames[i] = players[i].name;
+            }
+        }
+
         // Arrêter toutes les animations en cours
         if (gameLoop != null) {
             gameLoop.stop();
@@ -929,6 +958,14 @@ public class BombermanGame implements Initializable {
         powerUps.clear();
 
         initializeGame();
+
+        // Restaurer les noms des joueurs après l'initialisation
+        for (int i = 0; i < 4; i++) {
+            if (savedNames[i] != null && !savedNames[i].isEmpty()) {
+                players[i].name = savedNames[i];
+            }
+        }
+
         setupGameLoop();
         updateUI();
     }
