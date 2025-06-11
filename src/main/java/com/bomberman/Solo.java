@@ -399,6 +399,10 @@ public class Solo extends Application {
     // Ajoutez ce champ dans la classe Solo
     private javafx.scene.layout.Region backgroundOverlay;
 
+    /**
+     * Charge et configure l'image de fond de la fenêtre principale.
+     * Ajoute également un calque d'assombrissement pour l'effet visuel.
+     */
     private void setBackground() {
         try {
             Image image = new Image(getClass().getResourceAsStream("/images/imgfond.jpg"));
