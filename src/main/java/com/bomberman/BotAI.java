@@ -3,15 +3,31 @@ package com.bomberman;
 import java.util.*;
 import com.bomberman.BombermanGame;
 
+/**
+ * Intelligence artificielle des bots pour le mode solo.
+ * <p>
+ * Gère les déplacements, l'évitement des bombes, la pose de bombes et la recherche de cibles.
+ * Utilise des algorithmes de pathfinding (A*) et de détection de danger.
+ * </p>
+ * @author Valentin B.
+ */
 public class BotAI {
 
     private BombermanGame game;
     private Map<BombermanGame.Player, Long> lastBotMoveTime = new HashMap<>();
 
+    /**
+     * Constructeur de l'IA du bot.
+     * @param game Instance du jeu BombermanGame pour interagir avec le jeu.
+     */
     public BotAI(BombermanGame game) {
         this.game = game;
     }
 
+    /**
+     * Classe interne représentant un nœud pour l'algorithme A*.
+     * Contient les coordonnées, le coût g, le coût heuristique h et le parent pour la reconstruction du chemin.
+     */
     private static class Node {
         int x, y, g, h;
         Node parent;
@@ -24,6 +40,7 @@ public class BotAI {
             this.parent = parent;
         }
 
+        // Fonction de coût f = g + h
         int f() {
             return g + h;
         }
@@ -42,6 +59,15 @@ public class BotAI {
         }
     }
 
+    /**
+     * Met à jour le bot en fonction de l'état du jeu.
+     * Gère les mouvements, la pose de bombes et l'évitement des dangers.
+     * @param bot Le joueur contrôlé par le bot.
+     * @param players Liste des joueurs (y compris le bot).
+     * @param bombs Liste des bombes actuellement posées.
+     * @param walls Matrice représentant les murs indestructibles.
+     * @param destructibleBlocks Matrice représentant les blocs destructibles.
+     */
     public void updateBot(BombermanGame.Player bot, List<BombermanGame.Player> players, List<BombermanGame.Bomb> bombs, boolean[][] walls, boolean[][] destructibleBlocks) {
         if (!bot.alive) return;
 
@@ -115,7 +141,10 @@ public class BotAI {
         }
     }
 
-    // Classe pour stocker le résultat du path-finding avec des informations supplémentaires
+    /**
+     * Classe interne représentant le résultat d'un chemin trouvé par l'algorithme A*.
+     * Contient le chemin à suivre et le coût total du chemin.
+     */
     private static class PathResult {
         List<int[]> path;  // Le chemin à suivre
         int cost;          // Coût total du chemin (nombre de murs à casser)
@@ -126,6 +155,13 @@ public class BotAI {
         }
     }
 
+    /**
+     * Trouve la cible la plus appropriée pour le bot.
+     * Priorité au joueur humain s'il est vivant, sinon au bot vivant le plus proche.
+     * @param bot Le joueur contrôlé par le bot.
+     * @param players Liste des joueurs (y compris le bot).
+     * @return Le joueur cible ou null si aucun n'est trouvé.
+     */
     private BombermanGame.Player findTarget(BombermanGame.Player bot, List<BombermanGame.Player> players) {
         // Priorité au joueur humain s'il est vivant
         if (players.get(0).alive) {
@@ -150,7 +186,15 @@ public class BotAI {
         return nearest;
     }
 
-    // Marque toutes les cases menacées par chaque bombe selon le rayon du propriétaire
+    /**
+     * Calcule la carte de danger en fonction des bombes, des murs et des blocs destructibles.
+     * Chaque case dangereuse est marquée avec un niveau de danger.
+     * @param bombs Liste des bombes actuellement posées.
+     * @param walls Matrice représentant les murs indestructibles.
+     * @param destructibleBlocks Matrice représentant les blocs destructibles.
+     * @param gridSize Taille de la grille de jeu (gridSize x gridSize).
+     * @return Une matrice représentant le niveau de danger pour chaque case.
+     */
     private int[][] computeDangerMap(List<BombermanGame.Bomb> bombs, boolean[][] walls, boolean[][] destructibleBlocks, int gridSize) {
         int[][] danger = new int[gridSize][gridSize];
 
@@ -185,7 +229,17 @@ public class BotAI {
         return danger;
     }
 
-    // Cherche un mouvement sûr adjacent
+    /**
+     * Trouve un mouvement sûr pour le bot en évitant les zones dangereuses.
+     * Utilise une recherche BFS pour trouver le premier mouvement vers une case sûre.
+     * @param bot Le joueur contrôlé par le bot.
+     * @param danger Matrice représentant le niveau de danger pour chaque case.
+     * @param walls Matrice représentant les murs indestructibles.
+     * @param destructibleBlocks Matrice représentant les blocs destructibles.
+     * @param bombs Liste des bombes actuellement posées.
+     * @param gridSize Taille de la grille de jeu (gridSize x gridSize).
+     * @return Un tableau contenant les coordonnées du mouvement sûr ou null si aucun n'est trouvé.
+     */
     private int[] findSafeMove(BombermanGame.Player bot, int[][] danger, boolean[][] walls, boolean[][] destructibleBlocks, List<BombermanGame.Bomb> bombs, int gridSize) {
         // Vérifier si le bot est sur une bombe
         boolean onBomb = false;
@@ -298,7 +352,17 @@ public class BotAI {
         return null;  // Aucun mouvement sûr trouvé
     }
 
-    // A* amélioré qui tient compte des murs destructibles comme un coût supplémentaire
+    /** Trouve le chemin optimal vers la cible en utilisant l'algorithme A*.
+     * Prend en compte les murs, les blocs destructibles, les bombes et les zones dangereuses.
+     * @param bot Le joueur contrôlé par le bot.
+     * @param target Le joueur cible.
+     * @param walls Matrice représentant les murs indestructibles.
+     * @param destructibleBlocks Matrice représentant les blocs destructibles.
+     * @param bombs Liste des bombes actuellement posées.
+     * @param danger Matrice représentant le niveau de danger pour chaque case.
+     * @param gridSize Taille de la grille de jeu (gridSize x gridSize).
+     * @return Un objet PathResult contenant le chemin et le coût total, ou null si aucun chemin n'est trouvé.
+     */
     private PathResult findOptimalPath(BombermanGame.Player bot, BombermanGame.Player target, boolean[][] walls, boolean[][] destructibleBlocks, List<BombermanGame.Bomb> bombs, int[][] danger, int gridSize) {
         // Tableau pour marquer les nœuds visités
         boolean[][] closed = new boolean[gridSize][gridSize];
@@ -393,18 +457,36 @@ public class BotAI {
         return null; // Aucun chemin trouvé
     }
 
-    // Vérifier si deux positions sont adjacentes
+    /** Vérifie si deux positions sont adjacentes.
+     * Deux positions sont considérées comme adjacentes si la distance de Manhattan est égale à 1.
+     * @param x1 Coordonnée x de la première position.
+     * @param y1 Coordonnée y de la première position.
+     * @param x2 Coordonnée x de la deuxième position.
+     * @param y2 Coordonnée y de la deuxième position.
+     * @return true si les positions sont adjacentes, false sinon.
+     */
     private boolean isAdjacent(int x1, int y1, int x2, int y2) {
         // Vérifie si les positions sont adjacentes (distance de Manhattan = 1)
         return Math.abs(x1 - x2) + Math.abs(y1 - y2) <= 1;
     }
 
-    // Distance de Manhattan
+    /** Calcule la distance de Manhattan entre deux points.
+     * @param x1 Coordonnée x du premier point.
+     * @param y1 Coordonnée y du premier point.
+     * @param x2 Coordonnée x du deuxième point.
+     * @param y2 Coordonnée y du deuxième point.
+     * @return La distance de Manhattan entre les deux points.
+     */
     private int manhattanDistance(int x1, int y1, int x2, int y2) {
         return Math.abs(x1 - x2) + Math.abs(y1 - y2);
     }
 
-    // Reconstruire le chemin à partir du nœud final
+    /** Reconstitue le chemin à partir du nœud final trouvé par l'algorithme A*.
+     * @param finalNode Le nœud final atteint.
+     * @param startX Coordonnée x de la position de départ du bot.
+     * @param startY Coordonnée y de la position de départ du bot.
+     * @return Un objet PathResult contenant le chemin et le coût total.
+     */
     private PathResult reconstructPath(Node finalNode, int startX, int startY) {
         List<int[]> path = new ArrayList<>();
         Node current = finalNode;
@@ -418,7 +500,15 @@ public class BotAI {
         return new PathResult(path, cost);
     }
 
-    // Vérifie si le bot peut s'échapper après avoir posé une bombe
+    /** Vérifie si le bot peut s'échapper après avoir posé une bombe.
+     * Simule la pose d'une bombe et vérifie s'il existe un chemin sûr pour échapper à l'explosion.
+     * @param bot Le joueur contrôlé par le bot.
+     * @param bombs Liste des bombes actuellement posées.
+     * @param walls Matrice représentant les murs indestructibles.
+     * @param destructibleBlocks Matrice représentant les blocs destructibles.
+     * @param gridSize Taille de la grille de jeu (gridSize x gridSize).
+     * @return true si le bot peut s'échapper, false sinon.
+     */
     private boolean canEscapeAfterBomb(BombermanGame.Player bot, List<BombermanGame.Bomb> bombs, boolean[][] walls, boolean[][] destructibleBlocks, int gridSize) {
         // Simule la pose d'une bombe
         List<BombermanGame.Bomb> simulatedBombs = new ArrayList<>(bombs);

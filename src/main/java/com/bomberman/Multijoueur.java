@@ -24,8 +24,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Classe représentant la fenêtre de sélection des joueurs en mode multijoueur.
- * Permet aux joueurs d’entrer leur pseudo, valide les doublons et propose un bouton retour au menu principal.
+ * Fenêtre de sélection des joueurs pour le mode multijoueur.
+ * <p>
+ * Permet de saisir les pseudos, vérifie les doublons et lance la partie multijoueur.
+ * </p>
+ * @author Valentin B. - Akim A.
  */
 public class Multijoueur extends Application {
 

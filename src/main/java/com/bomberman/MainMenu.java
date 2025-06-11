@@ -18,7 +18,11 @@ import javafx.util.Duration;
 
 /**
  * Classe représentant le menu principal du jeu Bomberman.
- * Contient des boutons pour accéder aux différents modes (solo, multijoueur, options) ou quitter le jeu.
+ * <p>
+ * Permet d'accéder aux modes de jeu (solo, multijoueur), aux options et de quitter le jeu.
+ * Gère l'affichage du titre, du fond et des boutons avec styles et animations.
+ * </p>
+ * @author Valentin B. - Akim A.
  */
 public class MainMenu extends Application {
 

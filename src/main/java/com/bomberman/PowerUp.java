@@ -4,6 +4,13 @@ import javafx.animation.ScaleTransition;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+/**
+ * Représente un power-up sur la grille de jeu.
+ * <p>
+ * Gère le type, la position, l'état et l'animation visuelle du power-up.
+ * </p>
+ * @author Thomas A.
+ */
 public class PowerUp {
     private static final int DURATION_SECONDS = 15; // Durée des effets temporaires
 
@@ -19,6 +26,13 @@ public class PowerUp {
     private boolean active = true;
     private ImageView visual;
 
+    /**
+     * Constructeur de la classe PowerUp.
+     *
+     * @param x    Position X du power-up sur la grille
+     * @param y    Position Y du power-up sur la grille
+     * @param type Type de power-up (BOMB_UP, FIRE_UP, KICK_BOMB, INVINCIBLE)
+     */
     public PowerUp(int x, int y, Type type) {
         this.x = x;
         this.y = y;
@@ -32,6 +46,11 @@ public class PowerUp {
     public void collect() { this.active = false; }
     public ImageView getVisual() { return visual; }
 
+    /**
+     * Définit l'image visuelle du power-up et démarre une animation de pulsation.
+     *
+     * @param visual ImageView représentant le power-up
+     */
     public void setVisual(ImageView visual) {
         this.visual = visual;
 

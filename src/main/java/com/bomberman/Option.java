@@ -13,8 +13,11 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
- * Classe représentant la fenêtre des options du jeu Bomberman.
- * Permet notamment d’activer un style alternatif via une checkbox.
+ * Fenêtre des options du jeu Bomberman.
+ * <p>
+ * Permet d'activer un style graphique alternatif et de revenir au menu principal.
+ * </p>
+ * @author Akim A. - Valentin B.
  */
 public class Option extends Application {
 

@@ -11,11 +11,45 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
-import com.bomberman.BotAI;
 
 import java.net.URL;
 import java.util.*;
 
+
+/**
+ * Contrôleur principal du jeu Super Bomberman.
+ * <p>
+ * Gère l'initialisation de la grille, l'affichage des joueurs, la gestion des déplacements,
+ * la pose de bombes, les explosions, la collecte de power-ups, la détection de victoire,
+ * l'animation des éléments graphiques et l'intégration de l'IA pour les bots.
+ * <ul>
+ *   <li>Supporte le mode solo (avec bots) et multijoueur local (jusqu'à 4 joueurs).</li>
+ *   <li>Permet le changement de style graphique via les options.</li>
+ *   <li>Gère la musique, les effets sonores et les statistiques des joueurs.</li>
+ *   <li>Utilise JavaFX pour l'interface graphique et les animations.</li>
+ * </ul>
+ * <b>Principales responsabilités :</b>
+ * <ul>
+ *   <li>Initialisation et affichage de la grille de jeu (murs, blocs, power-ups, joueurs).</li>
+ *   <li>Gestion des entrées clavier pour les déplacements et la pose de bombes.</li>
+ *   <li>Animation des explosions, power-ups et transitions visuelles.</li>
+ *   <li>Détection des collisions, gestion des morts et du score.</li>
+ *   <li>Appel de l'IA pour les bots en mode solo.</li>
+ *   <li>Gestion de la fin de partie et de l'affichage du vainqueur.</li>
+ * </ul>
+ * <b>Annotations FXML :</b>
+ * <ul>
+ *   <li>gameGrid : grille principale du jeu.</li>
+ *   <li>player1Label à player4Label : labels d'affichage des joueurs.</li>
+ *   <li>winnerLabel : label d'affichage du vainqueur.</li>
+ * </ul>
+ * <b>Utilisation :</b>
+ * <ul>
+ *   <li>Instanciée automatiquement par JavaFX lors du chargement du FXML.</li>
+ *   <li>Les méthodes publiques permettent de configurer le mode de jeu, les noms des joueurs et le style graphique.</li>
+ * </ul>
+ * @author Valentin B. - Thomas A.
+ */
 public class BombermanGame implements Initializable {
 
     @FXML private GridPane gameGrid;
@@ -425,6 +459,15 @@ public class BombermanGame implements Initializable {
         }
     }
 
+
+    /**
+     * Déplace un joueur selon le déplacement demandé (dx, dy).
+     * Gère la collision, la poussée de bombe et la collecte de power-up.
+     * @param player le joueur à déplacer
+     * @param dx déplacement horizontal
+     * @param dy déplacement vertical
+     * @return true si le déplacement a eu lieu, false sinon
+     */
     boolean movePlayer(Player player, int dx, int dy) {
         if (!player.alive) return false;
 
@@ -477,6 +520,12 @@ public class BombermanGame implements Initializable {
         return false;
     }
 
+    /**
+     * Vérifie si un power-up est présent à la position (x, y) et l'applique au joueur.
+     * @param player le joueur concerné
+     * @param x position x
+     * @param y position y
+     */
     private void checkForPowerUp(Player player, int x, int y) {
         Iterator<PowerUp> iterator = powerUps.iterator();
         while (iterator.hasNext()) {
@@ -499,6 +548,12 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Vérifie si la case (x, y) est accessible (pas de mur, bloc, bombe).
+     * @param x colonne
+     * @param y ligne
+     * @return true si la case est libre, false sinon
+     */
     private boolean canMoveTo(int x, int y) {
         if (x < 0 || x >= GRID_SIZE || y < 0 || y >= GRID_SIZE) return false;
         if (walls[x][y] || destructibleBlocks[x][y]) return false;
@@ -511,6 +566,14 @@ public class BombermanGame implements Initializable {
         return true;
     }
 
+    /**
+     * Tente de pousser une bombe dans la direction donnée si possible.
+     * Anime le déplacement de la bombe.
+     * @param bomb la bombe à pousser
+     * @param dx déplacement horizontal
+     * @param dy déplacement vertical
+     * @return true si la bombe a été poussée, false sinon
+     */
     private boolean tryPushBomb(Bomb bomb, int dx, int dy) {
         // Position initiale
         final int startX = bomb.x;
@@ -627,6 +690,11 @@ public class BombermanGame implements Initializable {
         return true;
     }
 
+    /**
+     * Place une bombe à la position du joueur si possible.
+     * Gère la limite de bombes, l'affichage et le timer d'explosion.
+     * @param player le joueur qui pose la bombe
+     */
     void placeBomb(Player player) {
         if (gameEnded || !player.alive) return;
 
@@ -674,6 +742,11 @@ public class BombermanGame implements Initializable {
         audioManager.playEffect("place_bomb.mp3");
     }
 
+    /**
+     * Déclenche l'explosion d'une bombe, applique les effets sur la grille et les joueurs.
+     * Gère les explosions en chaîne et l'affichage.
+     * @param bomb la bombe à faire exploser
+     */
     private void explodeBomb(Bomb bomb) {
         // Vérifier si la bombe existe toujours et n'est pas déjà en train d'exploser
         if (bomb.exploding || !bombs.contains(bomb)) {
@@ -745,6 +818,11 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Détruit un bloc destructible à la position (x, y) et génère éventuellement un power-up.
+     * @param x colonne
+     * @param y ligne
+     */
     private void destroyBlock(int x, int y) {
         if (destructibleBlocks[x][y]) {
             destructibleBlocks[x][y] = false;
@@ -761,6 +839,12 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Crée un power-up visuel et logique à la position donnée.
+     * @param x colonne
+     * @param y ligne
+     * @param cell la cellule StackPane correspondante
+     */
     private void createPowerUp(int x, int y, StackPane cell) {
         // Choisir un type de power-up aléatoire
         PowerUp.Type type = PowerUp.Type.values()[(int)(Math.random() * PowerUp.Type.values().length)];
@@ -778,6 +862,10 @@ public class BombermanGame implements Initializable {
         powerUps.add(powerUp);
     }
 
+    /**
+     * Affiche l'animation d'explosion sur les cases concernées.
+     * @param cells liste des cases touchées par l'explosion
+     */
     private void showExplosion(List<int[]> cells) {
         for (int[] cell : cells) {
             ImageView explosionView = new ImageView(explosionImage);
@@ -797,6 +885,10 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Tue un joueur (sauf s'il est invincible), joue l'animation et le son de mort.
+     * @param player le joueur à éliminer
+     */
     private void killPlayer(Player player) {
         if (!player.alive) return;
 
@@ -832,6 +924,10 @@ public class BombermanGame implements Initializable {
         updateUI();
     }
 
+    /**
+     * Vérifie si la condition de victoire est atteinte et affiche le gagnant.
+     * Met à jour les statistiques et joue les sons/animations de victoire.
+     */
     private void checkWinCondition() {
         if (gameEnded) return;
 
@@ -893,6 +989,9 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Met à jour l'affichage des labels des joueurs (vivant/mort).
+     */
     private void updateUI() {
         player1Label.setText(players[0].name + (players[0].alive ? " ✓" : " ✗"));
         player1Label.getStyleClass().removeAll("dead-player");
@@ -911,6 +1010,10 @@ public class BombermanGame implements Initializable {
         if (!players[3].alive) player4Label.getStyleClass().add("dead-player");
     }
 
+    /**
+     * Gère les appuis de touches clavier pour les déplacements, bombes et redémarrage.
+     * @param event l'événement clavier
+     */
     @FXML
     private void handleKeyPressed(KeyEvent event) {
         pressedKeys.add(event.getCode());
@@ -927,11 +1030,18 @@ public class BombermanGame implements Initializable {
         }
     }
 
+    /**
+     * Gère le relâchement des touches clavier.
+     * @param event l'événement clavier
+     */
     @FXML
     private void handleKeyReleased(KeyEvent event) {
         pressedKeys.remove(event.getCode());
     }
 
+    /**
+     * Réinitialise la partie, les ressources et relance la boucle de jeu.
+     */
     private void restartGame() {
         winnerLabel.setText("");
         winnerLabel.getStyleClass().removeAll("winner-text");
@@ -972,6 +1082,12 @@ public class BombermanGame implements Initializable {
         updateUI();
     }
 
+    /**
+     * Récupère le noeud JavaFX à la position (col, row) dans la grille de jeu.
+     * @param col colonne
+     * @param row ligne
+     * @return le noeud correspondant ou null
+     */
     private javafx.scene.Node getNodeFromGridPane(int col, int row) {
         for (javafx.scene.Node node : gameGrid.getChildren()) {
             Integer column = GridPane.getColumnIndex(node);

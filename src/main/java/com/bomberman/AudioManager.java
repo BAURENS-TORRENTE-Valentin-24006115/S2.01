@@ -6,6 +6,14 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+
+/**
+ * Gestionnaire des sons et musiques du jeu Bomberman.
+ * <p>
+ * Permet de jouer, arrêter et configurer le volume des musiques et effets sonores.
+ * </p>
+ * @author Valentin B. - Thomas A.
+ */
 public class AudioManager {
     private MediaPlayer musicPlayer;
     private Map<String, Media> soundEffects;
@@ -14,11 +22,21 @@ public class AudioManager {
     private boolean musicEnabled = true;
     private boolean effectsEnabled = true;
 
+    /**
+     * Constructeur de la classe AudioManager.
+     * Initialise le gestionnaire de sons et charge les effets sonores.
+     */
     public AudioManager() {
         soundEffects = new HashMap<>();
         loadSoundEffects();
     }
 
+    /**
+     * Charge les effets sonores par défaut.
+     * <p>
+     * Les fichiers doivent être placés dans le répertoire /sounds/ du classpath.
+     * </p>
+     */
     private void loadSoundEffects() {
         soundEffects.clear();
         loadEffect("place_bomb.mp3");
@@ -28,6 +46,11 @@ public class AudioManager {
         loadEffect("win.mp3");
     }
 
+    /**
+     * Charge un effet sonore à partir d'un fichier.
+     *
+     * @param filename nom du fichier audio (dans /sounds/)
+     */
     private void loadEffect(String filename) {
         try {
             String resourcePath = "/sounds/" + filename;
@@ -48,6 +71,11 @@ public class AudioManager {
         }
     }
 
+    /**
+     * Joue une musique de fond (remplace la précédente si besoin).
+     *
+     * @param musicFile nom du fichier audio (dans /sounds/)
+     */
     public void playMusic(String musicFile) {
         if (!musicEnabled) return;
 
@@ -71,6 +99,11 @@ public class AudioManager {
         }
     }
 
+    /**
+     * Joue un effet sonore.
+     *
+     * @param effectName nom de l'effet sonore (doit correspondre à une clé dans soundEffects)
+     */
     public void playEffect(String effectName) {
         if (!effectsEnabled) return;
 
@@ -92,33 +125,12 @@ public class AudioManager {
         }
     }
 
+    /**
+     * Arrête la musique de fond en cours.
+     */
     public void stopMusic() {
         if (musicPlayer != null) {
             musicPlayer.stop();
         }
-    }
-
-    public void setMusicVolume(double volume) {
-        this.musicVolume = volume;
-        if (musicPlayer != null) {
-            musicPlayer.setVolume(volume);
-        }
-    }
-
-    public void setEffectsVolume(double volume) {
-        this.effectsVolume = volume;
-    }
-
-    public void toggleMusic() {
-        musicEnabled = !musicEnabled;
-        if (!musicEnabled && musicPlayer != null) {
-            musicPlayer.pause();
-        } else if (musicPlayer != null) {
-            musicPlayer.play();
-        }
-    }
-
-    public void toggleEffects() {
-        effectsEnabled = !effectsEnabled;
     }
 }
