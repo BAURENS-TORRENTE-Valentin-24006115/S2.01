@@ -47,6 +47,12 @@
             <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.openjfx/javafx-media -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>19.0.2.1</version>
+        </dependency>
     </dependencies>
 
     <build>
