@@ -1,13 +1,161 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="SCOPE_TYPE" value="8" />
+    <option name="CUSTOM_SCOPE_NAME" value="Selected directory" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
     <list default="true" id="dc7c32ac-d7ba-4f87-9aa2-9421fa43a936" name="Changes" comment="Menu now reopen after closing the Game">
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/module-info.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/module-info.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/allclasses-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/allpackages-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/Character.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/CharacterMouvements.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/GamePage.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/MainApp.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/MainMenu.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/Multijoueur.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/Obstacle.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/WinScreen.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/option.Settings.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/option.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/package-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/bomberman/package-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/bomberman/module-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/element-list" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/help-doc.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-1.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-3.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-4.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-5.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-6.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-7.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index-files/index-8.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/legal/COPYRIGHT" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/legal/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/legal/jquery.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/legal/jqueryUI.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/member-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/module-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/overview-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/package-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/copy.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/glass.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/jquery-ui.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/link.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/stylesheet.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/resource-files/x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/script-files/jquery-3.6.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/script-files/jquery-ui.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/script-files/script.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/script-files/search-page.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/script-files/search.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/search.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/tag-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Multi/type-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/allclasses-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/allpackages-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/Character.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/CharacterMouvements.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/GamePage.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/MainApp.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/MainMenu.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/Multijoueur.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/Obstacle.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/WinScreen.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/option.Settings.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/option.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/package-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/bomberman/package-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/bomberman/module-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/element-list" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/help-doc.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-1.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-3.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-4.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-5.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-6.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-7.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index-files/index-8.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/legal/COPYRIGHT" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/legal/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/legal/jquery.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/legal/jqueryUI.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/member-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/module-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/overview-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/package-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/copy.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/glass.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/jquery-ui.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/link.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/stylesheet.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/resource-files/x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/script-files/jquery-3.6.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/script-files/jquery-ui.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/script-files/script.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/script-files/search-page.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/script-files/search.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/search.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/tag-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.Option/type-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/allclasses-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/allpackages-index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/Character.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/CharacterMouvements.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/GamePage.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/MainApp.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/MainMenu.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/Multijoueur.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/Obstacle.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/WinScreen.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/option.Settings.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/option.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/package-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/bomberman/package-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/bomberman/module-summary.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/element-list" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/help-doc.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-1.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-2.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-3.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-4.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-5.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-6.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-7.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index-files/index-8.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/index.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/legal/COPYRIGHT" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/legal/LICENSE" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/legal/jquery.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/legal/jqueryUI.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/member-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/module-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/overview-tree.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/package-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/copy.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/glass.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/jquery-ui.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/link.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/stylesheet.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/resource-files/x.png" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/script-files/jquery-3.6.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/script-files/jquery-ui.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/script-files/script.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/script-files/search-page.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/script-files/search.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/search.html" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/tag-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/JavaDoc/javadoc.menu/type-search-index.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/bomberman/SpriteManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/bomberman/SpriteManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,12 +211,12 @@
     &quot;assignee&quot;: &quot;ANTOINE-Thomas-24013558&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/BAURENS-TORRENTE-Valentin-24006115/S2.01&quot;,
-    &quot;accountId&quot;: &quot;60bf06a7-facb-4813-ad89-171af63fd364&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/BAURENS-TORRENTE-Valentin-24006115/S2.01.git",
+    "accountId": "6811d345-6694-4a98-9703-b16d8a742be6"
   }
-}</component>
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
 }</component>
@@ -116,8 +264,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.26574.91" />
-        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.26574.91" />
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
       </set>
     </attachedChunks>
   </component>
@@ -131,6 +279,7 @@
       <updated>1749109028758</updated>
       <workItem from="1749109030196" duration="3191000" />
       <workItem from="1749112243797" duration="1058000" />
+      <workItem from="1749714520297" duration="1010000" />
     </task>
     <task id="LOCAL-00001" summary="added Obstacle class">
       <option name="closed" value="true" />

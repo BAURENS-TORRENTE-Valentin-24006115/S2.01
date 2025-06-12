@@ -7,6 +7,14 @@ import javafx.animation.Timeline;
 import javafx.animation.KeyFrame;
 import javafx.util.Duration;
 
+/**
+ * Classe pour gérer les sprites des joueurs dans le jeu Bomberman.
+ * <p>
+ * Permet de charger des spritesheets, d'extraire des sprites individuels,
+ * de gérer les animations et de fournir des sprites de remplacement si nécessaire.
+ * </p>
+ * @author Thomas A. - Valentin B.
+ */
 public class SpriteManager {
     private final Image[] playerSpritesheets;  // Une spritesheet par joueur
     private static final int SPRITE_WIDTH = 28; // Largeur d'une case
